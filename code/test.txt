@@ -1,0 +1,9 @@
+#include "lexicalAnalyse.h"
+#include <stdio.h>
+'\n' '\123'
+  const static && || %
+  int 01,
+  /*
+1
+  */
+}
