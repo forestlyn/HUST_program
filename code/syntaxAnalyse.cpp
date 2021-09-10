@@ -1,6 +1,5 @@
 #include "syntaxAnalyse.h"
-#include "gettoken.h"
-
+#include "lexicalAnalyse.cpp"
 using namespace std;
 
 extern char token_text[50];
@@ -12,6 +11,7 @@ int w, type; // token type
 int error = 0;
 VDN *Vroot; // 变量链表根节点
 int isVoid, hasReturn, isInRecycle = 0;
+int isExt = 1; //表示外部变量
 
 void syntaxAnalyse()
 //输出
@@ -23,8 +23,7 @@ void syntaxAnalyse()
     return;
   }
   else
-#error wait to finish
-    ;
+    PreorderTranverse(root, 0);
 }
 
 ASTTree *program()
@@ -102,7 +101,11 @@ ASTTree *ExtDef()
   strcpy(token_text, text);
   ASTTree *p;
   if (w == LP)
+  {
+    isExt = 0;
     p = FuncDef();
+    isExt = 1;
+  }
   else if (a == ARRAY)
     p = ArrayDef();
   else
@@ -139,6 +142,12 @@ ASTTree *ArrayDef()
   root->l = p;
   p = init_AST();
   p->type = ARRAYNAME;
+  if (!can(token_text, isExt))
+  {
+    printf("Error in line %d\n", lines);
+    printf("Error: can't define %s twice\n", token_text);
+    exit(0);
+  }
   strcpy(p->data.data, token_text);
   root->r = p;
   ASTTree *q = init_AST();
@@ -159,7 +168,7 @@ ASTTree *ExtVarDef()
     printf("Error: can't type void variables\n");
     exit(0);
   }
-  if (!can(token_text))
+  if (!can(token_text, isExt))
   {
     printf("Error in line %d\n", lines);
     printf("Error: can't define %s twice\n", token_text);
@@ -199,7 +208,7 @@ ASTTree *ExtVarDef()
     if (w != COMMA && w != SEMI)
     {
       printf("Error in line %d\n", lines);
-      printf("Error: wrong external define\n", token_text);
+      printf("Error: wrong external define\n");
       exit(0);
     }
     if (w == SEMI)
@@ -208,11 +217,11 @@ ASTTree *ExtVarDef()
     if (w != IDENT)
     {
       printf("Error in line %d\n", lines);
-      printf("Error: wrong external define\n", token_text);
+      printf("Error: wrong external define\n");
       exit(0);
     }
 
-    if (!can(token_text))
+    if (!can(token_text, isExt))
     {
       printf("Error in line %d\n", lines);
       printf("Error: can't define %s twice\n", token_text);
@@ -291,12 +300,12 @@ ASTTree *FuncDef()
   else if (w == LB)
   {
     q->r = CompState();
-#error
+#warning
   }
   else
   {
     printf("Error in line %d\n", lines);
-    printf("Error: wrong function def\n", token_text);
+    printf("Error: wrong function def\n");
     exit(0);
   }
   return root;
@@ -316,7 +325,7 @@ ASTTree *FormParaList(int flag)
   if (!flag && w == COMMA)
   {
     printf("Error in line %d\n", lines);
-    printf("Error: wrong function def\n", token_text);
+    printf("Error: wrong function def\n");
     exit(0);
   }
   else if (w == COMMA && flag)
@@ -339,7 +348,7 @@ ASTTree *FormParaDef()
   if (w != INT && w != FLOAT && w != CHAR && w != LONG && w != SHORT && w != DOUBLE)
   {
     printf("Error in line %d\n", lines);
-    printf("Error: wrong  formparadef\n", token_text);
+    printf("Error: wrong  formparadef\n");
     exit(0);
   }
   type = w;
@@ -349,7 +358,7 @@ ASTTree *FormParaDef()
   if (w != IDENT)
   {
     printf("Error in line %d\n", lines);
-    printf("Error: wrong  formparadef\n", token_text);
+    printf("Error: wrong  formparadef\n");
     exit(0);
   }
   ASTTree *root, *p;
@@ -375,7 +384,7 @@ ASTTree *FormParaDef()
   p = init_AST();
   p->type = FUNCFORMALPARA;
 
-  if (!can(token_text))
+  if (!can(token_text, isExt))
   {
     printf("Error in line %d\n", lines);
     printf("Error: can't define %s twice\n", token_text);
@@ -454,7 +463,7 @@ ASTTree *LocalVarDefList()
     exit(0);
   }
   p = q;
-  if (!can(token_text))
+  if (!can(token_text, isExt))
   {
     printf("Error in line %d\n", lines);
     printf("Error: can't define %s twice\n", token_text);
@@ -489,7 +498,7 @@ ASTTree *LocalVarDefList()
         printf("Error: error in local vardef\n");
         exit(0);
       }
-      else if (!can(token_text))
+      else if (!can(token_text, isExt))
       {
         printf("Error in line %d\n", lines);
         printf("Error: can't define %s twice\n", token_text);
@@ -553,6 +562,7 @@ ASTTree *Statement()
   switch (w)
   {
   case IF:
+  {
     w = getToken(fp);
     while (w == ANNO)
       w = getToken(fp);
@@ -636,7 +646,9 @@ ASTTree *Statement()
     }
     return root;
     break;
+  }
   case WHILE:
+  {
     isInRecycle = 1;
     w = getToken(fp);
     while (w == ANNO)
@@ -690,7 +702,9 @@ ASTTree *Statement()
     isInRecycle = 0;
     return root;
     break;
+  }
   case FOR:
+  {
     isInRecycle = 1;
     w = getToken(fp);
     while (w != ANNO)
@@ -760,7 +774,9 @@ ASTTree *Statement()
     isInRecycle = 0;
     return root;
     break;
+  }
   case RETURN:
+  {
     hasReturn = 1;
     w = getToken(fp);
     while (w == ANNO)
@@ -779,7 +795,9 @@ ASTTree *Statement()
     root->r = Expression(SEMI);
     return root;
     break;
+  }
   case DO:
+  {
     isInRecycle = 1;
     w = getToken(fp);
     while (w == ANNO)
@@ -844,7 +862,9 @@ ASTTree *Statement()
     root->type = DOWHILESTATEMENT;
     return root;
     break;
+  }
   case BREAK:
+  {
     w = getToken(fp);
     while (w == ANNO)
       w = getToken(fp);
@@ -863,7 +883,9 @@ ASTTree *Statement()
     root->type = BREAKSTATEMENT;
     return root;
     break;
+  }
   case CONTINUE:
+  {
     strcpy(root->data.data, token_text);
     w = getToken(fp);
     while (w == ANNO)
@@ -883,6 +905,7 @@ ASTTree *Statement()
     root->type = CONTINUESTATEMENT;
     return root;
     break;
+  }
   case INT_CONST:
   case FLOAT_CONST:
   case CHAR_CONST:
@@ -908,7 +931,7 @@ ASTTree *Expression(int end)
   p->data.type = POUND;
   op.push(p);
   stack<ASTTree *> opn; //运算数
-  ASTTree *p, *p1, *p2, *root;
+  ASTTree *p1, *p2, *root;
   while (((w != end) || (op.top()->data.type != POUND)) && !errors)
   {
     if (op.top()->data.type == RP)
@@ -923,7 +946,7 @@ ASTTree *Expression(int end)
     }
     if (w == IDENT)
     {
-      if (!checkname_exist(token_text))
+      if (!checkName(token_text))
       {
         printf("Error in line %d\n", lines);
         printf("Error: don't exit %s\n", token_text);
@@ -978,6 +1001,7 @@ ASTTree *Expression(int end)
         errors++;
     }
     else if (w >= EQ && w <= OROR)
+    //推入运算符，要比较优先级
     {
       switch (Precede(op.top()->data.type, w))
       {
@@ -1000,6 +1024,7 @@ ASTTree *Expression(int end)
           errors++;
           break;
         }
+        p1 = opn.top();
         if (p1)
           opn.pop();
         p = op.top();
@@ -1012,6 +1037,12 @@ ASTTree *Expression(int end)
         p->l = p1;
         p->r = p2;
         opn.push(p);
+
+        p = init_AST();
+        p->type = OPERATOR;
+        p->data.type = w;
+        strcpy(p->data.data, token_text);
+        op.push(p);
 
         w = getToken(fp);
         while (w == ANNO)
@@ -1054,6 +1085,7 @@ ASTTree *Expression(int end)
   }
 }
 char Precede(int a, int b)
+//运算符优先级比较
 {
   if (error == 1)
     return NULL;
@@ -1072,6 +1104,8 @@ char Precede(int a, int b)
     case EQ:
     case NEQ:
     case ASSIGN:
+    case ANDAND:
+    case OROR:
       return '>';
     case TIMES:
     case DIVIDE:
@@ -1098,6 +1132,8 @@ char Precede(int a, int b)
     case LESSEQUAL:
     case EQ:
     case NEQ:
+    case ANDAND:
+    case OROR:
       return '>';
     case LP:
       return '<';
@@ -1114,7 +1150,8 @@ char Precede(int a, int b)
     case TIMES:
     case DIVIDE:
     case LP:
-
+    case ANDAND:
+    case OROR:
       return '<';
     case RP:
       return '=';
@@ -1145,6 +1182,8 @@ char Precede(int a, int b)
     case LESSEQUAL:
     case EQ:
     case POUND:
+    case ANDAND:
+    case OROR:
       return '>';
     default:
       return '\0';
@@ -1165,6 +1204,8 @@ char Precede(int a, int b)
     case LESSEQUAL:
     case EQ:
     case NEQ:
+    case ANDAND:
+    case OROR:
       return '<';
     case POUND:
       return '>';
@@ -1190,6 +1231,8 @@ char Precede(int a, int b)
     case EQ:
     case NEQ:
     case POUND:
+    case ANDAND:
+    case OROR:
       return '>';
     default:
       return '\0';
@@ -1208,6 +1251,8 @@ char Precede(int a, int b)
     case LESS:
     case MOREEQUAL:
     case LESSEQUAL:
+    case ANDAND:
+    case OROR:
       return '<';
     case RP:
     case EQ:
@@ -1235,9 +1280,37 @@ char Precede(int a, int b)
     case EQ:
     case NEQ:
     case ASSIGN:
+    case ANDAND:
+    case OROR:
       return '<';
     case POUND:
       return '=';
+    default:
+      return '\0';
+    }
+  }
+  else if (a == ANDAND || a == OROR)
+  {
+    switch (b)
+    {
+    case PLUS:
+    case MINUS:
+    case TIMES:
+    case DIVIDE:
+    case LP:
+    case MORE:
+    case LESS:
+    case MOREEQUAL:
+    case LESSEQUAL:
+    case RP:
+    case EQ:
+    case NEQ:
+      return '<';
+    case ANDAND:
+    case OROR:
+    case ASSIGN:
+    case POUND:
+      return '>';
     default:
       return '\0';
     }
@@ -1251,15 +1324,240 @@ void returnToken(FILE *fp)
     ungetc(token_text[len - i - 1], fp);
   }
 }
-int can(char *name)
-    //检测变量名字是否存在
+int can(char *name, int flag_)
+//检测变量名字是否存在并加入，flag_=1表示是外部变量
+{
+  if (error)
+    return NULL;
+  int i, flag = 0;
+  VDN *p = Vroot;
+  if (!flag_)
+    while (p->next)
+      p = p->next;
+  for (i = 0; i < (p->size); i++)
+  {
+    if (!strcmp(p->variable[i], name))
     {
-#error wait to finish
-    } ASTTree *init_AST()
+      flag = 1;
+      break;
+    }
+  }
+  if (flag == 1)
+  {
+    error = 1;
+    return 0;
+  }
+  else
+  {
+    strcpy(p->variable[p->size], name);
+    p->size++;
+    return 1;
+  }
+}
+int checkName(char *name)
+{
+  if (error)
+    return NULL;
+  int i, flag = 0;
+  VDN *p = Vroot;
+  while (p->next)
+    p = p->next;
+  for (i = 0; i < p->size; i++)
+  {
+    if (!strcmp(p->variable[i], name))
+    {
+      flag = 1;
+      break;
+    }
+  }
+  for (i = 0; i < Vroot->size; i++)
+  {
+    if (!strcmp(p->variable[i], name))
+    {
+      flag = 1;
+      break;
+    }
+  }
+  if (!flag)
+  {
+    error = 1;
+    return 0;
+  }
+  return 1;
+}
+ASTTree *init_AST()
 {
   ASTTree *root = (ASTTree *)malloc(sizeof(ASTTree));
   root->l = root->r = NULL;
   strcpy(root->data.data, "");
   root->type = root->data.type = 0;
   return root;
+}
+
+void PreorderTranverse(ASTTree *root, int depth)
+{
+  if (!root)
+    printf("  ");
+  else
+  {
+    int i;
+    for (i = 0; i < depth; i++)
+      printf("  ");
+    showType(root->type);
+    if (strcmp(root->data.data, ""))
+    {
+      for (i = 0; i < depth; i++)
+        printf("  ");
+      printf("%s\n", root->data.data);
+    }
+    PreorderTranverse(root->l, depth + 1);
+    PreorderTranverse(root->r, depth + 1);
+  }
+}
+void showType(int type)
+{
+  switch (type)
+  {
+  case 1:
+    printf("外部序列\n");
+    break;
+  case 2:
+    printf("外部变量序列\n");
+    break;
+  case 3:
+    printf("外部变量种类\n");
+    break;
+  case 4:
+    printf("外部变量名字序列\n");
+    break;
+  case 5:
+    printf("外部变量名字\n");
+    break;
+  case 6:
+    printf("函数定义\n");
+    break;
+  case 7:
+    printf("函数返回值类型\n");
+    break;
+  case 8:
+    printf("函数名\n");
+    break;
+  case 9:
+    printf("函数形式参数序列\n");
+    break;
+  case 10:
+    printf("函数形式参数\n");
+    break;
+  case 11:
+    printf("函数形参类型\n");
+    break;
+  case 12:
+    printf("函数形参名\n");
+    break;
+  case 13:
+    printf("函数体\n");
+    break;
+  case 14:
+    printf("局部变量定义序列\n");
+    break;
+  case 15:
+    printf("局部变量定义\n");
+    break;
+  case 16:
+    printf("局部变量类型\n");
+    break;
+  case 17:
+    printf("局部变量名序列\n");
+    break;
+  case 18:
+    printf("局部变量名\n");
+    break;
+  case 19:
+    printf("语句序列\n");
+    break;
+  case 20:
+    printf("操作数\n");
+    break;
+  case 21:
+    printf("运算符\n");
+    break;
+  case 22:
+    printf("表达式\n");
+    break;
+  case 23:
+    printf("if语句部分\n");
+    break;
+  case 24:
+    printf("else语句\n");
+    break;
+  case 25:
+    printf("if语句\n");
+    break;
+  case 26:
+    printf("if-else语句\n");
+    break;
+  case 27:
+    printf("if-else语句\n");
+    break;
+  case 28:
+    printf("while条件语句\n");
+    break;
+  case 29:
+    printf("while语句体\n");
+    break;
+  case 30:
+    printf("for语句\n");
+    break;
+  case 31:
+    printf("for条件语句\n");
+    break;
+  case 32:
+    printf("for语句条件一\n");
+    break;
+  case 33:
+    printf("for语句条件二\n");
+    break;
+  case 34:
+    printf("for语句条件三\n");
+    break;
+  case 35:
+    printf("for语句体\n");
+    break;
+  case 36:
+    printf("return语句\n");
+    break;
+  case 37:
+    printf("break语句\n");
+    break;
+  case 38:
+    printf("do-while循环语句\n");
+    break;
+  case 39:
+    printf("do-while语句体\n");
+    break;
+  case 40:
+    printf("do-while条件\n");
+    break;
+  case 41:
+    printf("continue语句\n");
+    break;
+  case 42:
+    printf("函数声明\n");
+    break;
+  case 43:
+    printf("数组定义\n");
+    break;
+  case 44:
+    printf("数组类型\n");
+    break;
+  case 45:
+    printf("函数名\n");
+    break;
+  case 46:
+    printf("数组大小\n");
+    break;
+  default:
+    printf("no type\n");
+    break;
+  }
 }

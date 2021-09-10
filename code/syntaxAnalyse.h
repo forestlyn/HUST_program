@@ -17,8 +17,8 @@ typedef struct ASTTree
 
 typedef struct VariableDefNode
 {
-  int size;           // define num
-  char *variable[20]; // names
+  int size;              // define num
+  char variable[20][50]; // names
   struct VariableDefNode *next;
 } VDN;
 
@@ -84,6 +84,8 @@ ASTTree *ExtDefList(); //外部定义序列
 
 ASTTree *ExtDef(); //判断外部定义
 
+ASTTree *ArrayDef();
+
 ASTTree *ExtVarDef(); //外部序列变量
 
 ASTTree *FuncDef(); //函数处理
@@ -94,11 +96,11 @@ ASTTree *FormParaDef(); //函数形参处理
 
 ASTTree *CompState(); //分析函数主体
 
-ASTTree *LocalVarDefList();//分析局部变量
+ASTTree *LocalVarDefList(); //分析局部变量
 
-ASTTree *StateList();//处理语句序列
+ASTTree *StateList(); //处理语句序列
 
-ASTTree *Statement();//处理语句
+ASTTree *Statement(); //处理语句
 
 ASTTree *Expression(int endsym);
 
@@ -110,8 +112,6 @@ void showType(int type);
 
 void PreorderTranverse(ASTTree *root, int depth);
 
-int addName(char *token_text);
+int can(char *name, int flag_);
 
-int checkname_exist(char *token_text);
-
-ASTTree *ArrayDef();
+int checkName(char *name);
