@@ -1,6 +1,6 @@
 #include "gettoken.h"
-char token_text[50]; //å­˜æ”¾å•è¯è‡ªèº«å€¼
-char string_num[50]; //å­˜æ”¾æ•°å­—çš„å­—ç¬¦ä¸²
+char token_text[50]; //´æ·Åµ¥´Ê×ÔÉí
+char string_num[50]; //´æ·ÅÊı×ÖµÄ×Ö·û´®
 int lines = 1;
 int isRight(char *p)
 {
@@ -37,9 +37,9 @@ int isLetter(char c)
 int addWord(char c, char *word)
 {
   int i = 0;
-  while (word[i] != '\0' && i <= 19)
+  while (word[i] != '\0' && i <= 49)
     i++;
-  if (i >= 19)
+  if (i >= 50)
     return -1;
   word[i] = c;
   return 1;
@@ -49,7 +49,7 @@ int getToken(FILE *fp)
   char c;
   memset(token_text, 0, sizeof(token_text));
   c = getc(fp);
-  //è·³è¿‡ç©ºæ ¼è½¬è¡Œ
+  //Ìø¹ı¿Õ¸ñ×ªĞĞ
   while (c == ' ' || c == '\n')
   {
     if (c == '\n')
@@ -57,7 +57,7 @@ int getToken(FILE *fp)
     c = getc(fp);
   }
 
-  //å…³é”®å­—å’ŒIDENT
+  //¹Ø¼ü×ÖºÍIDENT
   if (isLetter(c) || c == '_')
   {
     int i;
@@ -116,7 +116,7 @@ int getToken(FILE *fp)
     }
   }
 
-  //åˆ¤æ–­æ•°
+  //ÅĞ¶ÏÊı×Ö
   if (isNum(c))
   {
     if (c == '0')
@@ -136,7 +136,7 @@ int getToken(FILE *fp)
             addWord(c, token_text);
             c = getc(fp);
           }
-          if (c == ' ' || c == ';' || c == ',')
+          if (c == ' ' || c == ';' || c == ')' || c == '+' || c == '-' || c == '*' || c == '/' || c == '%')
           {
             ungetc(c, fp);
             return INT_CONST;
@@ -157,14 +157,14 @@ int getToken(FILE *fp)
           addWord(c, token_text);
           c = getc(fp);
         }
-        if (c == ' ' || c == ';' || c == ',')
+        if (c == ' ' || c == ';' || c == ')' || c == '+' || c == '-' || c == '*' || c == '/' || c == '%')
         {
           ungetc(c, fp);
           return INT_CONST;
         }
         return ERROR_TOKEN;
       }
-      if (c == ' ' || c == ';' || c == ',')
+      if (c == ' ' || c == ';' || c == ')' || c == '+' || c == '-' || c == '*' || c == '/' || c == '%')
       {
         ungetc(c, fp);
         return INT_CONST;
@@ -178,7 +178,7 @@ int getToken(FILE *fp)
     }
     if (c != '.' && c != 'u' && c != 'U' && c != 'l' && c != 'L')
     {
-      if (c != ' ' && c != ';' && c != ')' && c != '+' && c != '-' && c != '*' && c != '/')
+      if (c != ' ' && c != ';' && c != ')' && c != '+' && c != '-' && c != '*' && c != '/' && c != '%')
         return ERROR_TOKEN;
       ungetc(c, fp);
       return INT_CONST;
@@ -350,7 +350,7 @@ int getToken(FILE *fp)
     }
     break;
 
-    //é™¤æ³•ï¼Œæ³¨é‡Š
+    //³ı·¨£¬×¢??
   case '/':
     addWord(c, token_text);
     c = getc(fp);
@@ -581,4 +581,5 @@ int getToken(FILE *fp)
   default:
     break;
   }
+  return -1;
 }

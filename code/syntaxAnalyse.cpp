@@ -9,12 +9,12 @@ extern FILE *fp;
 
 int w, type; // token type
 int error = 0;
-VDN *Vroot; // å˜é‡é“¾è¡¨æ ¹èŠ‚ç‚¹
+VDN *Vroot; // ±äÁ¿Á´±í¸ù½Úµã
 int isVoid, hasReturn, isInRecycle = 0;
-int isExt = 1; //è¡¨ç¤ºå¤–éƒ¨å˜é‡
+int isExt = 1; //±íÊ¾Íâ²¿±äÁ¿
 
 void syntaxAnalyse()
-//è¾“å‡º
+//Êä³ö
 {
   ASTTree *root = program();
   if (root == NULL || error == 1)
@@ -27,7 +27,7 @@ void syntaxAnalyse()
 }
 
 ASTTree *program()
-//å¼€å§‹åˆ†æ
+//¿ªÊ¼·ÖÎö
 {
   w = getToken(fp);
   while (w == ANNO || w == INCLUDE)
@@ -56,7 +56,7 @@ ASTTree *program()
   }
 }
 ASTTree *ExtDefList()
-//å¤„ç†å¤–éƒ¨å®šä¹‰ï¼Œå·¦ç»“ç‚¹å­˜å…·ä½“å®šä¹‰ï¼Œå³èŠ‚ç‚¹æ˜¯åç»­å¤–éƒ¨å®šä¹‰ç»“ç‚¹
+//´¦ÀíÍâ²¿¶¨Òå£¬×ó½áµã´æ¾ßÌå¶¨Òå£¬ÓÒ½ÚµãÊÇºóĞøÍâ²¿¶¨Òå½áµã
 {
   if (error || w == -1)
     return NULL;
@@ -71,7 +71,7 @@ ASTTree *ExtDefList()
 }
 
 ASTTree *ExtDef()
-//åˆ¤æ–­å¤–éƒ¨å®šä¹‰ï¼Œåˆ¤æ–­æ˜¯å˜é‡è¿˜æ˜¯å‡½æ•°ï¼Œè¿›è€Œè°ƒç”¨å…¶å®ƒå‡½æ•°å¤„ç†
+//ÅĞ¶ÏÍâ²¿¶¨Òå£¬ÅĞ¶ÏÊÇ±äÁ¿»¹ÊÇº¯Êı£¬½ø¶øµ÷ÓÃÆäËüº¯Êı´¦Àí
 {
   int a;
   if (error)
@@ -79,7 +79,7 @@ ASTTree *ExtDef()
   if (w != INT && w != FLOAT && w != CHAR && w != LONG && w != SHORT && w != DOUBLE && w != VOID)
   {
     printf("Error in line %d\n", lines);
-    printf("Error: wrong external define\n");
+    printf("Error: wrong external define 1\n");
     exit(0);
   }
   type = w;
@@ -89,7 +89,7 @@ ASTTree *ExtDef()
   if (w != IDENT && w != ARRAY)
   {
     printf("Error in line %d\n", lines);
-    printf("Error: wrong external define\n");
+    printf("Error: wrong external define 2\n");
     exit(0);
   }
   a = w;
@@ -158,7 +158,7 @@ ASTTree *ArrayDef()
 }
 
 ASTTree *ExtVarDef()
-//å¤–éƒ¨åºåˆ—å˜é‡
+//Íâ²¿ĞòÁĞ±äÁ¿
 {
   if (error)
     return NULL;
@@ -208,7 +208,7 @@ ASTTree *ExtVarDef()
     if (w != COMMA && w != SEMI)
     {
       printf("Error in line %d\n", lines);
-      printf("Error: wrong external define\n");
+      printf("Error: wrong external define 3\n");
       exit(0);
     }
     if (w == SEMI)
@@ -217,7 +217,7 @@ ASTTree *ExtVarDef()
     if (w != IDENT)
     {
       printf("Error in line %d\n", lines);
-      printf("Error: wrong external define\n");
+      printf("Error: wrong external define 4\n");
       exit(0);
     }
 
@@ -312,7 +312,7 @@ ASTTree *FuncDef()
 }
 
 ASTTree *FormParaList(int flag)
-//å‡½æ•°å½¢å‚ï¼Œflagè®°å½•æ˜¯å¦æ˜¯ç¬¬ä¸€ä¸ªå‚æ•°ç»“ç‚¹
+//º¯ÊıĞÎ²Î£¬flag¼ÇÂ¼ÊÇ·ñÊÇµÚÒ»¸ö²ÎÊı½áµã
 {
   if (error)
     return NULL;
@@ -341,7 +341,7 @@ ASTTree *FormParaList(int flag)
   return root;
 }
 ASTTree *FormParaDef()
-//å‡½æ•°å½¢å‚å®šä¹‰
+//º¯ÊıĞÎ²Î¶¨Òå
 {
   if (error)
     return NULL;
@@ -396,7 +396,7 @@ ASTTree *FormParaDef()
 }
 
 ASTTree *CompState()
-//åˆ†æå‡½æ•°ä¸»ä½“
+//·ÖÎöº¯ÊıÖ÷Ìå
 {
   if (error)
     return NULL;
@@ -420,7 +420,7 @@ ASTTree *CompState()
 }
 
 ASTTree *LocalVarDefList()
-//å†…éƒ¨èŠ‚ç‚¹å˜é‡
+//ÄÚ²¿½Úµã±äÁ¿
 {
   if (error)
     return NULL;
@@ -446,6 +446,9 @@ ASTTree *LocalVarDefList()
     strcpy(p->data.data, "short");
   if (w == DOUBLE)
     strcpy(p->data.data, "double");
+  if (w == ARRAY)
+    strcpy(p->data.data, "array");
+
   p->l = q;
   p = q;
 
@@ -456,7 +459,7 @@ ASTTree *LocalVarDefList()
   q->type = LOCALVARNAMELIST;
   p->r = q;
 
-  if (w != IDENT)
+  if (w != IDENT && w != ARRAY)
   {
     printf("Error in line %d\n", lines);
     printf("Error: error in local vardef\n");
@@ -492,7 +495,7 @@ ASTTree *LocalVarDefList()
       while (w == ANNO)
         w = getToken(fp);
 
-      if (w != IDENT)
+      if (w != IDENT && w != ARRAY)
       {
         printf("Error in line %d\n", lines);
         printf("Error: error in local vardef\n");
@@ -522,13 +525,13 @@ ASTTree *LocalVarDefList()
       exit(0);
     }
   }
-  if (w == INT || w == DOUBLE || w == CHAR || w == LONG || w == SHORT || w == FLOAT)
+  if (w == ARRAY || w == INT || w == DOUBLE || w == CHAR || w == LONG || w == SHORT || w == FLOAT)
     root->r = LocalVarDefList();
   return root;
 }
 
 ASTTree *StateList()
-//å¤„ç†è¯­å¥åºåˆ—
+//´¦ÀíÓï¾äĞòÁĞ
 {
   if (error)
     return NULL;
@@ -554,7 +557,7 @@ ASTTree *StateList()
 }
 
 ASTTree *Statement()
-//å¤„ç†è¯­å¥
+//´¦ÀíÓï¾ä
 {
   if (error)
     return NULL;
@@ -592,7 +595,7 @@ ASTTree *Statement()
       w = getToken(fp);
       while (w == ANNO)
         w = getToken(fp);
-      p->r = Statement();
+      p->r = StateList();
     }
     else if (w == ARRAY || w == INT_CONST || w == FLOAT_CONST || w == CHAR_CONST || w == IDENT || w == IF || w == WHILE || w == FOR || w == DO)
     {
@@ -925,12 +928,12 @@ ASTTree *Expression(int end)
     return NULL;
 
   int errors = 0;
-  stack<ASTTree *> op; //è¿ç®—ç¬¦å·
+  stack<ASTTree *> op; //ÔËËã·ûºÅ
   ASTTree *p = init_AST();
   p->type = OPERATOR;
   p->data.type = POUND;
   op.push(p);
-  stack<ASTTree *> opn; //è¿ç®—æ•°
+  stack<ASTTree *> opn; //ÔËËãÊı
   ASTTree *p1, *p2, *root;
   while (((w != end) || (op.top()->data.type != POUND)) && !errors)
   {
@@ -1001,7 +1004,7 @@ ASTTree *Expression(int end)
         errors++;
     }
     else if (w >= EQ && w <= OROR)
-    //æ¨å…¥è¿ç®—ç¬¦ï¼Œè¦æ¯”è¾ƒä¼˜å…ˆçº§
+    //ÍÆÈëÔËËã·û£¬Òª±È½ÏÓÅÏÈ¼¶
     {
       switch (Precede(op.top()->data.type, w))
       {
@@ -1085,7 +1088,7 @@ ASTTree *Expression(int end)
   }
 }
 char Precede(int a, int b)
-//è¿ç®—ç¬¦ä¼˜å…ˆçº§æ¯”è¾ƒ
+//ÔËËã·ûÓÅÏÈ¼¶±È½Ï
 {
   if (error == 1)
     return NULL;
@@ -1315,6 +1318,7 @@ char Precede(int a, int b)
       return '\0';
     }
   }
+  return '\0';
 }
 void returnToken(FILE *fp)
 {
@@ -1325,7 +1329,7 @@ void returnToken(FILE *fp)
   }
 }
 int can(char *name, int flag_)
-//æ£€æµ‹å˜é‡åå­—æ˜¯å¦å­˜åœ¨å¹¶åŠ å…¥ï¼Œflag_=1è¡¨ç¤ºæ˜¯å¤–éƒ¨å˜é‡
+//¼ì²â±äÁ¿Ãû×ÖÊÇ·ñ´æÔÚ²¢¼ÓÈë£¬flag_=1±íÊ¾ÊÇÍâ²¿±äÁ¿
 {
   if (error)
     return NULL;
@@ -1419,142 +1423,142 @@ void showType(int type)
   switch (type)
   {
   case 1:
-    printf("å¤–éƒ¨åºåˆ—\n");
+    printf("Íâ²¿ĞòÁĞ\n");
     break;
   case 2:
-    printf("å¤–éƒ¨å˜é‡åºåˆ—\n");
+    printf("Íâ²¿±äÁ¿ĞòÁĞ\n");
     break;
   case 3:
-    printf("å¤–éƒ¨å˜é‡ç§ç±»\n");
+    printf("Íâ²¿±äÁ¿ÖÖÀà\n");
     break;
   case 4:
-    printf("å¤–éƒ¨å˜é‡åå­—åºåˆ—\n");
+    printf("Íâ²¿±äÁ¿Ãû×ÖĞòÁĞ\n");
     break;
   case 5:
-    printf("å¤–éƒ¨å˜é‡åå­—\n");
+    printf("Íâ²¿±äÁ¿Ãû×Ö\n");
     break;
   case 6:
-    printf("å‡½æ•°å®šä¹‰\n");
+    printf("º¯Êı¶¨Òå\n");
     break;
   case 7:
-    printf("å‡½æ•°è¿”å›å€¼ç±»å‹\n");
+    printf("º¯Êı·µ»ØÖµÀàĞÍ\n");
     break;
   case 8:
-    printf("å‡½æ•°å\n");
+    printf("º¯ÊıÃû\n");
     break;
   case 9:
-    printf("å‡½æ•°å½¢å¼å‚æ•°åºåˆ—\n");
+    printf("º¯ÊıĞÎÊ½²ÎÊıĞòÁĞ\n");
     break;
   case 10:
-    printf("å‡½æ•°å½¢å¼å‚æ•°\n");
+    printf("º¯ÊıĞÎÊ½²ÎÊı\n");
     break;
   case 11:
-    printf("å‡½æ•°å½¢å‚ç±»å‹\n");
+    printf("º¯ÊıĞÎ²ÎÀàĞÍ\n");
     break;
   case 12:
-    printf("å‡½æ•°å½¢å‚å\n");
+    printf("º¯ÊıĞÎ²ÎÃû\n");
     break;
   case 13:
-    printf("å‡½æ•°ä½“\n");
+    printf("º¯ÊıÌå\n");
     break;
   case 14:
-    printf("å±€éƒ¨å˜é‡å®šä¹‰åºåˆ—\n");
+    printf("¾Ö²¿±äÁ¿¶¨ÒåĞòÁĞ\n");
     break;
   case 15:
-    printf("å±€éƒ¨å˜é‡å®šä¹‰\n");
+    printf("¾Ö²¿±äÁ¿¶¨Òå\n");
     break;
   case 16:
-    printf("å±€éƒ¨å˜é‡ç±»å‹\n");
+    printf("¾Ö²¿±äÁ¿ÀàĞÍ\n");
     break;
   case 17:
-    printf("å±€éƒ¨å˜é‡ååºåˆ—\n");
+    printf("¾Ö²¿±äÁ¿ÃûĞòÁĞ\n");
     break;
   case 18:
-    printf("å±€éƒ¨å˜é‡å\n");
+    printf("¾Ö²¿±äÁ¿Ãû\n");
     break;
   case 19:
-    printf("è¯­å¥åºåˆ—\n");
+    printf("Óï¾äĞòÁĞ\n");
     break;
   case 20:
-    printf("æ“ä½œæ•°\n");
+    printf("²Ù×÷Êı\n");
     break;
   case 21:
-    printf("è¿ç®—ç¬¦\n");
+    printf("ÔËËã·û\n");
     break;
   case 22:
-    printf("è¡¨è¾¾å¼\n");
+    printf("±í´ïÊ½\n");
     break;
   case 23:
-    printf("ifè¯­å¥éƒ¨åˆ†\n");
+    printf("ifÓï¾ä²¿·Ö\n");
     break;
   case 24:
-    printf("elseè¯­å¥\n");
+    printf("elseÓï¾ä\n");
     break;
   case 25:
-    printf("ifè¯­å¥\n");
+    printf("ifÓï¾ä\n");
     break;
   case 26:
-    printf("if-elseè¯­å¥\n");
+    printf("if-elseÓï¾ä\n");
     break;
   case 27:
-    printf("if-elseè¯­å¥\n");
+    printf("if-elseÓï¾ä\n");
     break;
   case 28:
-    printf("whileæ¡ä»¶è¯­å¥\n");
+    printf("whileÌõ¼şÓï¾ä\n");
     break;
   case 29:
-    printf("whileè¯­å¥ä½“\n");
+    printf("whileÓï¾äÌå\n");
     break;
   case 30:
-    printf("forè¯­å¥\n");
+    printf("forÓï¾ä\n");
     break;
   case 31:
-    printf("foræ¡ä»¶è¯­å¥\n");
+    printf("forÌõ¼şÓï¾ä\n");
     break;
   case 32:
-    printf("forè¯­å¥æ¡ä»¶ä¸€\n");
+    printf("forÓï¾äÌõ¼şÒ»\n");
     break;
   case 33:
-    printf("forè¯­å¥æ¡ä»¶äºŒ\n");
+    printf("forÓï¾äÌõ¼ş¶ş\n");
     break;
   case 34:
-    printf("forè¯­å¥æ¡ä»¶ä¸‰\n");
+    printf("forÓï¾äÌõ¼şÈı\n");
     break;
   case 35:
-    printf("forè¯­å¥ä½“\n");
+    printf("forÓï¾äÌå\n");
     break;
   case 36:
-    printf("returnè¯­å¥\n");
+    printf("returnÓï¾ä\n");
     break;
   case 37:
-    printf("breakè¯­å¥\n");
+    printf("breakÓï¾ä\n");
     break;
   case 38:
-    printf("do-whileå¾ªç¯è¯­å¥\n");
+    printf("do-whileÑ­»·Óï¾ä\n");
     break;
   case 39:
-    printf("do-whileè¯­å¥ä½“\n");
+    printf("do-whileÓï¾äÌå\n");
     break;
   case 40:
-    printf("do-whileæ¡ä»¶\n");
+    printf("do-whileÌõ¼ş\n");
     break;
   case 41:
-    printf("continueè¯­å¥\n");
+    printf("continueÓï¾ä\n");
     break;
   case 42:
-    printf("å‡½æ•°å£°æ˜\n");
+    printf("º¯ÊıÉùÃ÷\n");
     break;
   case 43:
-    printf("æ•°ç»„å®šä¹‰\n");
+    printf("Êı×é¶¨Òå\n");
     break;
   case 44:
-    printf("æ•°ç»„ç±»å‹\n");
+    printf("Êı×éÀàĞÍ\n");
     break;
   case 45:
-    printf("å‡½æ•°å\n");
+    printf("º¯ÊıÃû\n");
     break;
   case 46:
-    printf("æ•°ç»„å¤§å°\n");
+    printf("Êı×é´óĞ¡\n");
     break;
   default:
     printf("no type\n");
