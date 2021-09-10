@@ -1,7 +1,4 @@
-#include "lexicalAnalyse.h"
-#include "syntaxAnalyse.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "lexicalAnalyse.cpp"
 FILE *fp;
 char *fileName;
 int main(int argc, char *argv[])
@@ -26,7 +23,7 @@ int main(int argc, char *argv[])
       break;
     case 2:
       fp = fopen(finename, "r");
-      syntaxAnalyse();
+      // syntaxAnalyse();
       system("pause");
     case 3:
       fp = fopen(finename, "r");

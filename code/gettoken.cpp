@@ -1,6 +1,6 @@
 #include "gettoken.h"
-char token_text[20]; //存放单词自身值
-char string_num[20]; //存放数字的字符串
+char token_text[50]; //存放单词自身值
+char string_num[50]; //存放数字的字符串
 int lines = 1;
 int isRight(char *p)
 {

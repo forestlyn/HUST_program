@@ -1,6 +1,6 @@
 #include "lexicalAnalyse.h"
-#include "gettoken.h"
-extern char token_text[20];
+#include "gettoken.cpp"
+extern char token_text[50];
 extern int lines;
 extern FILE *fp;
 

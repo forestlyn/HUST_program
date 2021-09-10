@@ -3,8 +3,8 @@
 
 using namespace std;
 
-extern char token_text[20];
-extern char string_num[20];
+extern char token_text[50];
+extern char string_num[50];
 extern int lines;
 extern FILE *fp;
 
@@ -674,7 +674,7 @@ ASTTree *Statement()
         w = getToken(fp);
       q->r = StateList();
     }
-    else if (w == INT_CONST || w == FLOAT_CONST || w == CHAR_CONST || w == IDENT)
+    else if (w == INT_CONST || w == FLOAT_CONST || w == CHAR_CONST || w == IDENT || w == ARRAY || w == WHILE || w == IF || w == FOR || w == DO)
     {
       q->r = Statement();
     }
@@ -690,8 +690,557 @@ ASTTree *Statement()
     isInRecycle = 0;
     return root;
     break;
-  default:
+  case FOR:
+    isInRecycle = 1;
+    w = getToken(fp);
+    while (w != ANNO)
+      w = getToken(fp);
+    if (w != LP)
+    {
+      printf("Error in line %d\n", lines);
+      printf("Error: Error in for condition\n");
+      exit(0);
+    }
+
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+    ASTTree *p = init_AST();
+    p->type = FORPART;
+    ASTTree *q = init_AST();
+    q->type = FORPART1;
+    ASTTree *q1 = Expression(SEMI);
+    p->l = q;
+    q->l = q1;
+    q1 = q;
+
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+    q = init_AST();
+    q->type = FORPART2;
+    q1->r = q;
+    q1 = Expression(SEMI);
+    q->l = q1;
+    q1 = q;
+
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+    q = init_AST();
+    q->type = FORPART3;
+    q1->r = q;
+    q1 = Expression(RP);
+    q->l = q1;
+    q1 = q;
+
+    ASTTree *q2 = init_AST();
+    q2->type = FORBODY;
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+    if (w == LB)
+    {
+      w = getToken(fp);
+      while (w == ANNO)
+        w = getToken(fp);
+      q2->r = StateList();
+    }
+    else if (w == ARRAY || w == INT_CONST || w == FLOAT_CONST || w == CHAR_CONST || w == IDENT || w == IF || w == WHILE || w == FOR || w == DO)
+      q2->r = Statement();
+    else
+    {
+      printf("Error in line %d\n", lines);
+      printf("Error: error in for\n");
+      exit(0);
+    }
+    root->type = FORSTATEMENT;
+    root->l = p;
+    root->r = q2;
+    isInRecycle = 0;
+    return root;
     break;
+  case RETURN:
+    hasReturn = 1;
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+    if (isVoid && w != SEMI)
+    {
+      printf("Error in line %d\n", lines);
+      printf("Error: void shouldn't have return statement\n");
+      exit(0);
+    }
+    returnToken(fp);
+    root->type = RETURNSTATEMENT;
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+    root->r = Expression(SEMI);
+    return root;
+    break;
+  case DO:
+    isInRecycle = 1;
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+    if (w != LB)
+    {
+      printf("Error in line %d\n", lines);
+      printf("Error: error in do\n");
+      exit(0);
+    }
+    ASTTree *p = init_AST();
+    p->type = DOWHILEBODY;
+    ASTTree *q = init_AST();
+    q->type = DOWHILECONDITION;
+
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+    p->l = StateList();
+
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+    if (w != WHILE)
+    {
+      printf("Error in line %d\n", lines);
+      printf("Error: miss while in do-while\n");
+      exit(0);
+    }
+
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+    if (w != LP)
+    {
+      printf("Error in line %d\n", lines);
+      printf("Error: miss while LP in do-while\n");
+      exit(0);
+    }
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+    q->l = Expression(RP);
+    if (!q->l)
+    {
+      printf("Error in line %d\n", lines);
+      printf("Error: miss while condition LP in do-while\n");
+      exit(0);
+    }
+
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+    if (w != SEMI)
+    {
+      printf("Error in line %d\n", lines);
+      printf("Error: miss while SEMI in do-while\n");
+      exit(0);
+    }
+    root->l = p;
+    root->r = q;
+    root->type = DOWHILESTATEMENT;
+    return root;
+    break;
+  case BREAK:
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+    if (w != SEMI)
+    {
+      printf("Error in line %d\n", lines);
+      printf("Error: miss SEMI\n");
+      exit(0);
+    }
+    if (!isInRecycle)
+    {
+      printf("Error in line %d\n", lines);
+      printf("Error: unexpected break\n");
+      exit(0);
+    }
+    root->type = BREAKSTATEMENT;
+    return root;
+    break;
+  case CONTINUE:
+    strcpy(root->data.data, token_text);
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+    if (w != SEMI)
+    {
+      printf("Error in line %d\n", lines);
+      printf("Error: miss SEMI\n");
+      exit(0);
+    }
+    if (!isInRecycle)
+    {
+      printf("Error in line %d\n", lines);
+      printf("Error: unexpected continue\n");
+      exit(0);
+    }
+    root->type = CONTINUESTATEMENT;
+    return root;
+    break;
+  case INT_CONST:
+  case FLOAT_CONST:
+  case CHAR_CONST:
+  case LONG_CONST:
+  case IDENT:
+  case ARRAY:
+    return Expression(SEMI);
+    break;
+  default:
+    return root;
+    break;
+  }
+}
+ASTTree *Expression(int end)
+{
+  if (error || w == end)
+    return NULL;
+
+  int errors = 0;
+  stack<ASTTree *> op; //运算符号
+  ASTTree *p = init_AST();
+  p->type = OPERATOR;
+  p->data.type = POUND;
+  op.push(p);
+  stack<ASTTree *> opn; //运算数
+  ASTTree *p, *p1, *p2, *root;
+  while (((w != end) || (op.top()->data.type != POUND)) && !errors)
+  {
+    if (op.top()->data.type == RP)
+    {
+      if (op.size() < 3)
+      {
+        errors++;
+        break;
+      }
+      op.pop();
+      op.pop();
+    }
+    if (w == IDENT)
+    {
+      if (!checkname_exist(token_text))
+      {
+        printf("Error in line %d\n", lines);
+        printf("Error: don't exit %s\n", token_text);
+        exit(0);
+      }
+    }
+    if (w == IDENT || w == INT_CONST || w == FLOAT_CONST || w == LONG_CONST || w == CHAR_CONST || w == ARRAY || w == STRING_CONST)
+    {
+      p = init_AST();
+      p->type = OPERAND;
+      strcpy(p->data.data, token_text);
+      opn.push(p);
+      w = getToken(fp);
+      while (w == ANNO)
+        w = getToken(fp);
+    }
+    else if (w == end)
+    {
+      while (op.top()->data.type != POUND)
+      {
+        p2 = opn.top();
+        if (!p2)
+        {
+          errors++;
+          break;
+        }
+        if (p2)
+          opn.pop();
+        if (!opn.size())
+          p1 = NULL;
+        else
+          p1 = opn.top();
+        if (!p1)
+        {
+          errors++;
+          break;
+        }
+        if (p1)
+          opn.pop();
+        p = op.top();
+        if (!p)
+        {
+          errors++;
+          break;
+        }
+        op.pop();
+        p->l = p1;
+        p->r = p2;
+        opn.push(p);
+      }
+      if (opn.size() != 1)
+        errors++;
+    }
+    else if (w >= EQ && w <= OROR)
+    {
+      switch (Precede(op.top()->data.type, w))
+      {
+      case '<':
+        p = init_AST();
+        p->type = OPERATOR;
+        p->data.type = w;
+        strcpy(p->data.data, token_text);
+        op.push(p);
+        w = getToken(fp);
+        while (w == ANNO)
+          w = getToken(fp);
+        break;
+      case '>':
+        p2 = opn.top();
+        if (p2)
+          opn.pop();
+        if (!opn.size())
+        {
+          errors++;
+          break;
+        }
+        if (p1)
+          opn.pop();
+        p = op.top();
+        if (!p)
+        {
+          errors++;
+          break;
+        }
+        op.pop();
+        p->l = p1;
+        p->r = p2;
+        opn.push(p);
+
+        w = getToken(fp);
+        while (w == ANNO)
+          w = getToken(fp);
+        break;
+      case '=':
+        p = op.top();
+        if (!p)
+        {
+          errors++;
+          break;
+        }
+        w = getToken(fp);
+        while (w == ANNO)
+          w = getToken(fp);
+        break;
+      case '\0':
+        printf("Error in line %d\n", lines);
+        printf("Error: unknown operator\n");
+        exit(0);
+      }
+    }
+    else
+      error = 1;
+  }
+  if ((opn.size() == 1) && (op.top()->data.type == POUND) && !error)
+  {
+    p = opn.top();
+    opn.pop();
+    root = init_AST();
+    root->type = EXPRESSION;
+    root->l = p;
+    return root;
+  }
+  else
+  {
+    printf("Error in line %d\n", lines);
+    printf("Error: wrong expression\n");
+    exit(0);
+  }
+}
+char Precede(int a, int b)
+{
+  if (error == 1)
+    return NULL;
+  if (a == PLUS || a == MINUS)
+  {
+    switch (b)
+    {
+    case PLUS:
+    case MINUS:
+    case RP:
+    case POUND:
+    case MORE:
+    case LESS:
+    case MOREEQUAL:
+    case LESSEQUAL:
+    case EQ:
+    case NEQ:
+    case ASSIGN:
+      return '>';
+    case TIMES:
+    case DIVIDE:
+    case LP:
+      return '<';
+    default:
+      return '\0';
+      break;
+    }
+  }
+  else if (a == TIMES || a == DIVIDE)
+  {
+    switch (b)
+    {
+    case PLUS:
+    case MINUS:
+    case RP:
+    case POUND:
+    case TIMES:
+    case DIVIDE:
+    case MORE:
+    case LESS:
+    case MOREEQUAL:
+    case LESSEQUAL:
+    case EQ:
+    case NEQ:
+      return '>';
+    case LP:
+      return '<';
+    default:
+      return '\0';
+    }
+  }
+  else if (a == LP)
+  {
+    switch (b)
+    {
+    case PLUS:
+    case MINUS:
+    case TIMES:
+    case DIVIDE:
+    case LP:
+
+      return '<';
+    case RP:
+      return '=';
+    case MORE:
+    case LESS:
+    case MOREEQUAL:
+    case LESSEQUAL:
+    case EQ:
+    case NEQ:
+    case POUND:
+      return '>';
+    default:
+      return '\0';
+    }
+  }
+  else if (a == RP)
+  {
+    switch (b)
+    {
+    case PLUS:
+    case MINUS:
+    case TIMES:
+    case DIVIDE:
+    case LP:
+    case MORE:
+    case LESS:
+    case MOREEQUAL:
+    case LESSEQUAL:
+    case EQ:
+    case POUND:
+      return '>';
+    default:
+      return '\0';
+    }
+  }
+  else if (a == ASSIGN)
+  {
+    switch (b)
+    {
+    case PLUS:
+    case MINUS:
+    case TIMES:
+    case DIVIDE:
+    case LP:
+    case MORE:
+    case LESS:
+    case MOREEQUAL:
+    case LESSEQUAL:
+    case EQ:
+    case NEQ:
+      return '<';
+    case POUND:
+      return '>';
+    default:
+      return '\0';
+    }
+  }
+  else if (a == MORE || a == LESS || a == MOREEQUAL || a == LESSEQUAL)
+  {
+    switch (b)
+    {
+    case PLUS:
+    case MINUS:
+    case TIMES:
+    case DIVIDE:
+    case LP:
+      return '<';
+    case RP:
+    case MORE:
+    case LESS:
+    case MOREEQUAL:
+    case LESSEQUAL:
+    case EQ:
+    case NEQ:
+    case POUND:
+      return '>';
+    default:
+      return '\0';
+    }
+  }
+  else if (a == EQ || a == NEQ)
+  {
+    switch (b)
+    {
+    case PLUS:
+    case MINUS:
+    case TIMES:
+    case DIVIDE:
+    case LP:
+    case MORE:
+    case LESS:
+    case MOREEQUAL:
+    case LESSEQUAL:
+      return '<';
+    case RP:
+    case EQ:
+    case NEQ:
+    case POUND:
+      return '>';
+    default:
+      return '\0';
+    }
+  }
+  else if (a == POUND)
+  {
+    switch (b)
+    {
+    case PLUS:
+    case MINUS:
+    case TIMES:
+    case DIVIDE:
+    case LP:
+    case MORE:
+    case LESS:
+    case MOREEQUAL:
+    case LESSEQUAL:
+    case RP:
+    case EQ:
+    case NEQ:
+    case ASSIGN:
+      return '<';
+    case POUND:
+      return '=';
+    default:
+      return '\0';
+    }
   }
 }
 void returnToken(FILE *fp)
@@ -710,7 +1259,7 @@ int can(char *name)
 {
   ASTTree *root = (ASTTree *)malloc(sizeof(ASTTree));
   root->l = root->r = NULL;
-  strcpy(root->data.data, NULL);
+  strcpy(root->data.data, "");
   root->type = root->data.type = 0;
   return root;
 }

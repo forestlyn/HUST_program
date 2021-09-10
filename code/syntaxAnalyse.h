@@ -80,25 +80,25 @@ ASTTree *init_AST(); //初始化函数
 
 ASTTree *program(); //开始分析
 
-ASTTree *ExtDefList();
+ASTTree *ExtDefList(); //外部定义序列
 
-ASTTree *ExtDef();
+ASTTree *ExtDef(); //判断外部定义
 
-ASTTree *ExtVarDef();
+ASTTree *ExtVarDef(); //外部序列变量
 
-ASTTree *FuncDef();
+ASTTree *FuncDef(); //函数处理
 
-ASTTree *FormParaList(int flag);
+ASTTree *FormParaList(int flag); //函数形参序列
 
-ASTTree *FormParaDef();
+ASTTree *FormParaDef(); //函数形参处理
 
-ASTTree *CompState();
+ASTTree *CompState(); //分析函数主体
 
-ASTTree *LocalVarDefList();
+ASTTree *LocalVarDefList();//分析局部变量
 
-ASTTree *StateList();
+ASTTree *StateList();//处理语句序列
 
-ASTTree *Statement();
+ASTTree *Statement();//处理语句
 
 ASTTree *Expression(int endsym);
 
