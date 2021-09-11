@@ -492,6 +492,7 @@ ASTTree *CompState()
     return NULL;
 
   ASTTree *root = init_AST();
+  root->type = FUNCBODY;
   w = getToken(fp);
   while (w == ANNO)
     w = getToken(fp);
@@ -1255,15 +1256,16 @@ char Precede(int a, int b)
     case LP:
     case ANDAND:
     case OROR:
-      return '<';
-    case RP:
-      return '=';
     case MORE:
     case LESS:
     case MOREEQUAL:
     case LESSEQUAL:
     case EQ:
     case NEQ:
+      return '<';
+    case RP:
+      return '=';
+
     case POUND:
       return '>';
     default:

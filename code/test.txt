@@ -1,9 +1,27 @@
-int main(int a)
+#include<stdio.h>
+#define
+int i,j;
+int fun(int a, float b)
 {
-	return 1;
+	int m;
+	if (a>b) 
+		m=a;
+		if(a&&1)
+		{
+			m=1;
+		}
+	else if(1)
+		m=b;
+	return m;
+	fun(a,b);
+	do
+	{
+		a=a+1;
+		a=1+(2<3);
+	}while(a<10);
+	for(;;)
+	{
+		a=a&&1;
+	}
 }
-int fun()
-{int i;
-	main(1);
-	return 1;
-}
+float x,y;
