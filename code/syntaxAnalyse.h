@@ -17,92 +17,108 @@ typedef struct ASTTree
 
 typedef struct VariableDefNode
 {
-  int size;              // define num
+  int size; // define num
+  int type[20];
   char variable[20][50]; // names
   struct VariableDefNode *next;
 } VDN;
+
+typedef struct Fun
+{
+  int type;
+  ASTTree *Vardef; //²ÎÊý
+  char name[50];
+  struct Fun *next;
+} Fun;
 
 enum DataType
 {
   EXTDEFLIST = 1,
   EXTVARDEF,
   EXTVARTYPE,
-  EXTVARLIST,         //å¤–éƒ¨å˜é‡ååºåˆ—ç»“ç‚¹
-  EXTVAR,             //å¤–éƒ¨å˜é‡åç»“ç‚¹
-  FUNCDEF,            //å‡½æ•°å®šä¹‰ç»“ç‚¹
-  FUNCRETURNTYPE,     //å‡½æ•°è¿”å›žå€¼ç±»åž‹ç»“ç‚¹
-  FUNCNAME,           //å‡½æ•°åç»“ç‚¹
-  FUNCFORMALPARALIST, //å‡½æ•°å½¢å¼å‚æ•°åºåˆ—ç»“ç‚¹
-  FUNCFORMALPARADEF,  //å‡½æ•°å½¢å¼å‚æ•°ç»“ç‚¹10
-  FUNCFORMALPARATYPE, //å‡½æ•°å½¢å‚ç±»åž‹ç»“ç‚¹
-  FUNCFORMALPARA,     //å‡½æ•°å½¢å‚åç»“ç‚¹
-  FUNCBODY,           //å‡½æ•°ä½“ç»“ç‚¹
-  LOCALVARDEFLIST,    //å±€éƒ¨å˜é‡å®šä¹‰åºåˆ—ç»“ç‚¹
-  LOCALVARDEF,        //å±€éƒ¨å˜é‡å®šä¹‰ç»“ç‚¹15
-  LOCALVARTYPE,       //å±€éƒ¨å˜é‡ç±»åž‹ç»“ç‚¹
-  LOCALVARNAMELIST,   //å±€éƒ¨å˜é‡ååºåˆ—
-  LOCALVARNAME,       //å±€éƒ¨å˜é‡å
-  STATELIST,          //è¯­å¥åºåˆ—ç»“ç‚¹
-  OPERAND,            //æ“ä½œæ•°ç»“ç‚¹20
-  OPERATOR,           //è¿ç®—ç¬¦ç»“ç‚¹
-  EXPRESSION,         //è¡¨è¾¾å¼
-  IFPART,             // ifè¯­å¥éƒ¨åˆ†
-  ELSEPART,           // elseéƒ¨åˆ†
-  IFSTATEMENT,        // ifè¯­å¥25
-  IFELSESTATEMENT,    // if-elseè¯­å¥
-  WHILESTATEMENT,     // whileè¯­å¥ç»“ç‚¹
-  WHILEPART,          // whileæ¡ä»¶è¯­å¥ç»“ç‚¹
-  WHILEBODY,          // whileè¯­å¥ä½“
-  FORSTATEMENT,       // forè¯­å¥ç»“ç‚¹30
-  FORPART,            // foræ¡ä»¶è¯­å¥
-  FORPART1,           // forè¯­å¥æ¡ä»¶ä¸€
-  FORPART2,           // forè¯­å¥æ¡ä»¶äºŒ
-  FORPART3,           // forè¯­å¥æ¡ä»¶ä¸‰
-  FORBODY,            // forè¯­å¥ä½“35
-  RETURNSTATEMENT,    // returnè¯­å¥
-  BREAKSTATEMENT,     // breakè¯­å¥
-  DOWHILESTATEMENT,   // do-whileå¾ªçŽ¯è¯­å¥
-  DOWHILEBODY,        // do-whileè¯­å¥ä½“
-  DOWHILECONDITION,   // do-whileæ¡ä»¶40
-  CONTINUESTATEMENT,  // continueè¯­å¥
-  FUNCCLAIM,          //å‡½æ•°å£°æ˜Ž
-  ARRAYDEF,           //æ•°ç»„å®šä¹‰
-  ARRAYTYPE,          //æ•°ç»„ç±»åž‹
-  ARRAYNAME,          //æ•°ç»„å45
-  ARRAYSIZE,          //æ•°ç»„å¤§å°
+  EXTVARLIST,         //Íâ²¿±äÁ¿ÃûÐòÁÐ½áµã
+  EXTVAR,             //Íâ²¿±äÁ¿Ãû½áµã
+  FUNCDEF,            //º¯Êý¶¨Òå½áµã
+  FUNCRETURNTYPE,     //º¯Êý·µ»ØÖµÀàÐÍ½áµã
+  FUNCNAME,           //º¯ÊýÃû½áµã
+  FUNCFORMALPARALIST, //º¯ÊýÐÎÊ½²ÎÊýÐòÁÐ½áµã
+  FUNCFORMALPARADEF,  //º¯ÊýÐÎÊ½²ÎÊý½áµã10
+  FUNCFORMALPARATYPE, //º¯ÊýÐÎ²ÎÀàÐÍ½áµã
+  FUNCFORMALPARA,     //º¯ÊýÐÎ²ÎÃû½áµã
+  FUNCBODY,           //º¯ÊýÌå½áµã
+  LOCALVARDEFLIST,    //¾Ö²¿±äÁ¿¶¨ÒåÐòÁÐ½áµã
+  LOCALVARDEF,        //¾Ö²¿±äÁ¿¶¨Òå½áµã15
+  LOCALVARTYPE,       //¾Ö²¿±äÁ¿ÀàÐÍ½áµã
+  LOCALVARNAMELIST,   //¾Ö²¿±äÁ¿ÃûÐòÁÐ
+  LOCALVARNAME,       //¾Ö²¿±äÁ¿Ãû
+  STATELIST,          //Óï¾äÐòÁÐ½áµã
+  OPERAND,            //²Ù×÷Êý½áµã20
+  OPERATOR,           //ÔËËã·û½áµã
+  EXPRESSION,         //±í´ïÊ½
+  IFPART,             // ifÓï¾ä²¿·Ö
+  ELSEPART,           // else²¿·Ö
+  IFSTATEMENT,        // ifÓï¾ä25
+  IFELSESTATEMENT,    // if-elseÓï¾ä
+  WHILESTATEMENT,     // whileÓï¾ä½áµã
+  WHILEPART,          // whileÌõ¼þÓï¾ä½áµã
+  WHILEBODY,          // whileÓï¾äÌå
+  FORSTATEMENT,       // forÓï¾ä½áµã30
+  FORPART,            // forÌõ¼þÓï¾ä
+  FORPART1,           // forÓï¾äÌõ¼þÒ»
+  FORPART2,           // forÓï¾äÌõ¼þ¶þ
+  FORPART3,           // forÓï¾äÌõ¼þÈý
+  FORBODY,            // forÓï¾äÌå35
+  RETURNSTATEMENT,    // returnÓï¾ä
+  BREAKSTATEMENT,     // breakÓï¾ä
+  DOWHILESTATEMENT,   // do-whileÑ­»·Óï¾ä
+  DOWHILEBODY,        // do-whileÓï¾äÌå
+  DOWHILECONDITION,   // do-whileÌõ¼þ40
+  CONTINUESTATEMENT,  // continueÓï¾ä
+  FUNCCLAIM,          //º¯ÊýÉùÃ÷
+  ARRAYDEF,           //Êý×é¶¨Òå
+  ARRAYTYPE,          //Êý×éÀàÐÍ
+  ARRAYNAME,          //Êý×éÃû45
+  ARRAYSIZE,          //Êý×é´óÐ¡
+  INCLUDELIST,        //Í·ÎÄ¼þÐòÁÐ
+  INCLUDENAME,        //Í·ÎÄ¼þÃû×Ö
+  FUNUSE,             //º¯Êýµ÷ÓÃ
+  MACROLIST,          //ºê¶¨ÒåÐòÁÐ
+  MACRONAME,          //ºê¶¨ÒåÃû×Ö
 };
 
-void syntaxAnalyse(); //å¼€å§‹
+void syntaxAnalyse(); //¿ªÊ¼
 
-void freeTree(ASTTree *root);
+ASTTree *init_AST(); //³õÊ¼»¯º¯Êý
 
-ASTTree *init_AST(); //åˆå§‹åŒ–å‡½æ•°
+ASTTree *program(); //¿ªÊ¼·ÖÎö
 
-ASTTree *program(); //å¼€å§‹åˆ†æž
+ASTTree *ExtDefList(); //Íâ²¿¶¨ÒåÐòÁÐ
 
-ASTTree *ExtDefList(); //å¤–éƒ¨å®šä¹‰åºåˆ—
-
-ASTTree *ExtDef(); //åˆ¤æ–­å¤–éƒ¨å®šä¹‰
+ASTTree *ExtDef(); //ÅÐ¶ÏÍâ²¿¶¨Òå
 
 ASTTree *ArrayDef();
 
-ASTTree *ExtVarDef(); //å¤–éƒ¨åºåˆ—å˜é‡
+ASTTree *ExtVarDef(); //Íâ²¿ÐòÁÐ±äÁ¿
 
-ASTTree *FuncDef(); //å‡½æ•°å¤„ç†
+ASTTree *FuncDef(); //º¯Êý´¦Àí
 
-ASTTree *FormParaList(int flag); //å‡½æ•°å½¢å‚åºåˆ—
+ASTTree *FormParaList(int flag); //º¯ÊýÐÎ²ÎÐòÁÐ
 
-ASTTree *FormParaDef(); //å‡½æ•°å½¢å‚å¤„ç†
+ASTTree *FormParaDef(); //º¯ÊýÐÎ²Î´¦Àí
 
-ASTTree *CompState(); //åˆ†æžå‡½æ•°ä¸»ä½“
+ASTTree *CompState(); //·ÖÎöº¯ÊýÖ÷Ìå
 
-ASTTree *LocalVarDefList(); //åˆ†æžå±€éƒ¨å˜é‡
+ASTTree *LocalVarDefList(); //·ÖÎö¾Ö²¿±äÁ¿
 
-ASTTree *StateList(); //å¤„ç†è¯­å¥åºåˆ—
+ASTTree *StateList(); //´¦ÀíÓï¾äÐòÁÐ
 
-ASTTree *Statement(); //å¤„ç†è¯­å¥
+ASTTree *Statement(); //´¦ÀíÓï¾ä
 
 ASTTree *Expression(int endsym);
+
+ASTTree *headFile();
+
+ASTTree *macroFile();
 
 char Precede(int c1, int c2);
 
@@ -112,6 +128,12 @@ void showType(int type);
 
 void PreorderTranverse(ASTTree *root, int depth);
 
-int can(char *name, int flag_);
+int can(char *name, int flag_, int type);
 
-int checkName(char *name);
+int checkName(char *name, int type);
+
+int checkType(int a, int b);
+
+Fun *checkFun(char *name);
+
+ASTTree *FunUse(Fun *f);

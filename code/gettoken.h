@@ -4,8 +4,8 @@
 typedef enum token_kind
 {
   ERROR_TOKEN = 1,
-  IDENT,     //æ ‡è¯†ç¬¦
-  INT_CONST, //æ•´å½¢å¸¸é‡
+  IDENT,     //±êÊ¶·û
+  INT_CONST, //ÕûÐÎ³£Á¿
   FLOAT_CONST,
   CHAR_CONST,
   STRING_CONST,
@@ -33,35 +33,35 @@ typedef enum token_kind
   VOID,
   CONST,
   STATIC,
-  LB,         //å·¦å¤§æ‹¬å·
-  RB,         //å³å¤§æ‹¬å·
-  LM,         //å·¦ä¸­æ‹¬å·
-  RM,         //å³ä¸­æ‹¬å·
-  SEMI,       //åˆ†å·31
-  COMMA,      //é€—å·
+  LB,         //×ó´óÀ¨ºÅ
+  RB,         //ÓÒ´óÀ¨ºÅ
+  LM,         //×óÖÐÀ¨ºÅ
+  RM,         //ÓÒÖÐÀ¨ºÅ
+  SEMI,       //·ÖºÅ31
+  COMMA,      //¶ººÅ
   EQ,         //'=='
-  NEQ,        //â€˜!=â€™
+  NEQ,        //¡®!=¡¯
   ASSIGN,     //'='35
-  LP,         //å·¦æ‹¬å·
-  RP,         //å³æ‹¬å·
-  TIMES,      //ä¹˜æ³•
-  DIVIDE,     //é™¤æ³•
-  PLUS,       //åŠ æ³•40
-  PLUSPLUS,   //è‡ªå¢žè¿ç®—
-  MINUS,      //å‡æ³•
-  MINUSMINUS, //è‡ªå‡è¿ç®—
+  LP,         //×óÀ¨ºÅ
+  RP,         //ÓÒÀ¨ºÅ
+  TIMES,      //³Ë·¨
+  DIVIDE,     //³ý·¨
+  PLUS,       //¼Ó·¨40
+  PLUSPLUS,   //×ÔÔöÔËËã
+  MINUS,      //¼õ·¨
+  MINUSMINUS, //×Ô¼õÔËËã
   MOD,        //%
-  POUND,      //äº•å·42
-  MORE,       //å¤§äºŽå·
-  LESS,       //å°äºŽå·
-  MOREEQUAL,  //å¤§äºŽç­‰äºŽ
-  LESSEQUAL,  //å°äºŽç­‰äºŽ
+  POUND,      //¾®ºÅ42
+  MORE,       //´óÓÚºÅ
+  LESS,       //Ð¡ÓÚºÅ
+  MOREEQUAL,  //´óÓÚµÈÓÚ
+  LESSEQUAL,  //Ð¡ÓÚµÈÓÚ
   ANDAND,     //&&
   OROR,       //||
-  ANNO,       //æ³¨é‡Š
-  INCLUDE,    //å¤´æ–‡ä»¶å¼•ç”¨
-  MACRO,      //å®å®šä¹‰
-  ARRAY,      //æ•°ç»„
+  ANNO,       //×¢ÊÍ
+  INCLUDE,    //Í·ÎÄ¼þÒýÓÃ
+  MACRO,      //ºê¶¨Òå
+  ARRAY,      //Êý×é
 } token_kind;
 
 const int KEYWORD_LEN = 15;

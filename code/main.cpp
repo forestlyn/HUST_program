@@ -1,4 +1,4 @@
-#include "syntaxAnalyse.cpp"
+#include "format.cpp"
 FILE *fp;
 char *fileName;
 // int main(int argc, char *argv[])
@@ -39,17 +39,19 @@ char *fileName;
 int main()
 {
   char finename[20];
-  printf("input:");
-  scanf("%s", finename);
+  // printf("input:");
+  //scanf("%s", finename);
+  strcpy(finename, "test.txt");
   int op = 1;
   while (op)
   {
     printf("\t1.lexicalAnalyse\n");
     printf("\t2.syntaxAnalyse\n");
     printf("\t3.format\n");
+    printf("\t0.exit\n");
     printf("\tchoose in [0-3]:");
     scanf("%d", &op);
-    lines = 1;
+    init();
     switch (op)
     {
     case 1:
@@ -64,6 +66,7 @@ int main()
       break;
     case 3:
       fp = fopen(finename, "r");
+      format();
       system("pause");
     default:
       break;

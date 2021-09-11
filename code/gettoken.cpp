@@ -50,7 +50,7 @@ int getToken(FILE *fp)
   memset(token_text, 0, sizeof(token_text));
   c = getc(fp);
   //跳过空格转行
-  while (c == ' ' || c == '\n')
+  while (c == ' ' || c == '\n' || c == '\r' || c == '\t')
   {
     if (c == '\n')
       lines++;
@@ -178,7 +178,7 @@ int getToken(FILE *fp)
     }
     if (c != '.' && c != 'u' && c != 'U' && c != 'l' && c != 'L')
     {
-      if (c != ' ' && c != ';' && c != ')' && c != '+' && c != '-' && c != '*' && c != '/' && c != '%')
+      if (c != '\n' && c != ' ' && c != ';' && c != ')' && c != '+' && c != '-' && c != '*' && c != '/' && c != '%' && c != '<' && c != '>' && c != '=')
         return ERROR_TOKEN;
       ungetc(c, fp);
       return INT_CONST;

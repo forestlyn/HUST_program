@@ -9,7 +9,9 @@ extern FILE *fp;
 
 int w, type; // token type
 int error = 0;
-VDN *Vroot; // 变量链表根节点
+VDN *Vroot;   // 变量链表根节点
+Fun *funroot; //函数链表结点
+ASTTree *var; //函数形参
 int isVoid, hasReturn, isInRecycle = 0;
 int isExt = 1; //表示外部变量
 
@@ -30,13 +32,15 @@ ASTTree *program()
 //开始分析
 {
   w = getToken(fp);
-  while (w == ANNO || w == INCLUDE)
-  {
+  while (w == ANNO)
     w = getToken(fp);
-  }
   Vroot = (VDN *)malloc(sizeof(VDN));
+  memset(Vroot->type, 0, sizeof(Vroot->type));
   Vroot->size = 0;
   Vroot->next = NULL;
+  funroot = (Fun *)malloc(sizeof(Fun));
+  funroot->next = NULL;
+  strcpy(funroot->name, "");
   ASTTree *p = ExtDefList();
   if (p != NULL)
   {
@@ -64,18 +68,32 @@ ASTTree *ExtDefList()
   root->type = EXTDEFLIST;
   root->l = ExtDef();
   w = getToken(fp);
-  while (w == ANNO || w == INCLUDE)
+  while (w == ANNO)
     w = getToken(fp);
   root->r = ExtDefList();
   return root;
 }
 
 ASTTree *ExtDef()
-//判断外部定义，判断是变量还是函数，进而调用其它函数处理
+//判断外部定义，判断是变量还是函数还是头文件，进而调用其它函数处理
 {
   int a;
   if (error)
     return NULL;
+  if (w == INCLUDE)
+  {
+    ASTTree *p = init_AST();
+    p->type = INCLUDELIST;
+    p->r = headFile();
+    return p;
+  }
+  if (w == MACRO)
+  {
+    ASTTree *p = init_AST();
+    p->type = MACROLIST;
+    p->r = macroFile();
+    return p;
+  }
   if (w != INT && w != FLOAT && w != CHAR && w != LONG && w != SHORT && w != DOUBLE && w != VOID)
   {
     printf("Error in line %d\n", lines);
@@ -142,7 +160,7 @@ ASTTree *ArrayDef()
   root->l = p;
   p = init_AST();
   p->type = ARRAYNAME;
-  if (!can(token_text, isExt))
+  if (!can(token_text, isExt, ARRAY))
   {
     printf("Error in line %d\n", lines);
     printf("Error: can't define %s twice\n", token_text);
@@ -168,7 +186,7 @@ ASTTree *ExtVarDef()
     printf("Error: can't type void variables\n");
     exit(0);
   }
-  if (!can(token_text, isExt))
+  if (!can(token_text, isExt, type))
   {
     printf("Error in line %d\n", lines);
     printf("Error: can't define %s twice\n", token_text);
@@ -221,7 +239,7 @@ ASTTree *ExtVarDef()
       exit(0);
     }
 
-    if (!can(token_text, isExt))
+    if (!can(token_text, isExt, type))
     {
       printf("Error in line %d\n", lines);
       printf("Error: can't define %s twice\n", token_text);
@@ -243,7 +261,62 @@ ASTTree *ExtVarDef()
       w = getToken(fp);
   }
 }
-
+ASTTree *headFile()
+{
+  ASTTree *root = init_AST();
+  root->type = INCLUDENAME;
+  root->data.type = INCLUDE;
+  strcpy(root->data.data, token_text);
+  w = getToken(fp);
+  while (w == ANNO)
+    w = getToken(fp);
+  ASTTree *root1 = root;
+  while (w == INCLUDE)
+  {
+    ASTTree *p = init_AST();
+    p->type = INCLUDELIST;
+    ASTTree *q = init_AST();
+    q->type = INCLUDENAME;
+    q->data.type = INCLUDE;
+    strcpy(q->data.data, token_text);
+    p->l = q;
+    root1->r = p;
+    root1 = p;
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+  }
+  returnToken(fp);
+  return root;
+}
+ASTTree *macroFile()
+{
+  ASTTree *root = init_AST();
+  root->type = MACRONAME;
+  root->data.type = MACRO;
+  strcpy(root->data.data, token_text);
+  w = getToken(fp);
+  while (w == ANNO)
+    w = getToken(fp);
+  ASTTree *root1 = root;
+  while (w == MACRO)
+  {
+    ASTTree *p = init_AST();
+    p->type = MACROLIST;
+    ASTTree *q = init_AST();
+    q->type = MACRONAME;
+    q->data.type = MACRO;
+    strcpy(q->data.data, token_text);
+    p->l = q;
+    root1->r = p;
+    root1 = p;
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+  }
+  returnToken(fp);
+  return root;
+}
 ASTTree *FuncDef()
 {
   if (error)
@@ -282,10 +355,13 @@ ASTTree *FuncDef()
   while (lastVDN->next)
     lastVDN = lastVDN->next;
   lastVDN->next = (VDN *)malloc(sizeof(VDN));
+  memset(lastVDN->next->type, 0, sizeof(lastVDN->next->type));
+
   lastVDN = lastVDN->next;
   lastVDN->next = NULL;
   lastVDN->size = 0;
 
+  var = init_AST();
   q->l = FormParaList(0);
 
   w = getToken(fp);
@@ -299,8 +375,16 @@ ASTTree *FuncDef()
   }
   else if (w == LB)
   {
+    Fun *function = funroot;
+    while (function->next)
+      function = function->next;
+    function->next = (Fun *)malloc(sizeof(Fun));
+    function->next->Vardef = var;
+    var = NULL;
+    function->next->type = p->data.type;
+    strcpy(function->next->name, q->data.data);
+    function->next->next = NULL;
     q->r = CompState();
-#warning
   }
   else
   {
@@ -321,7 +405,6 @@ ASTTree *FormParaList(int flag)
     w = getToken(fp);
   if (w == RP)
     return NULL;
-
   if (!flag && w == COMMA)
   {
     printf("Error in line %d\n", lines);
@@ -367,6 +450,13 @@ ASTTree *FormParaDef()
   root->type = FUNCFORMALPARADEF;
   p->type = FUNCFORMALPARATYPE;
   p->data.type = type;
+
+  ASTTree *var1 = var;
+  while (var1->l)
+    var1 = var1->l;
+  var1->l = init_AST();
+  var1->l->type = type;
+
   if (type == INT)
     strcpy(p->data.data, "int");
   if (type == FLOAT)
@@ -384,7 +474,7 @@ ASTTree *FormParaDef()
   p = init_AST();
   p->type = FUNCFORMALPARA;
 
-  if (!can(token_text, isExt))
+  if (!can(token_text, isExt, type))
   {
     printf("Error in line %d\n", lines);
     printf("Error: can't define %s twice\n", token_text);
@@ -466,7 +556,7 @@ ASTTree *LocalVarDefList()
     exit(0);
   }
   p = q;
-  if (!can(token_text, isExt))
+  if (!can(token_text, isExt, type))
   {
     printf("Error in line %d\n", lines);
     printf("Error: can't define %s twice\n", token_text);
@@ -501,7 +591,7 @@ ASTTree *LocalVarDefList()
         printf("Error: error in local vardef\n");
         exit(0);
       }
-      else if (!can(token_text, isExt))
+      else if (!can(token_text, isExt, type))
       {
         printf("Error in line %d\n", lines);
         printf("Error: can't define %s twice\n", token_text);
@@ -710,7 +800,7 @@ ASTTree *Statement()
   {
     isInRecycle = 1;
     w = getToken(fp);
-    while (w != ANNO)
+    while (w == ANNO)
       w = getToken(fp);
     if (w != LP)
     {
@@ -808,7 +898,7 @@ ASTTree *Statement()
     if (w != LB)
     {
       printf("Error in line %d\n", lines);
-      printf("Error: error in do\n");
+      printf("Error: error in do, miss {\n");
       exit(0);
     }
     ASTTree *p = init_AST();
@@ -909,11 +999,20 @@ ASTTree *Statement()
     return root;
     break;
   }
+  case IDENT:
+  {
+    Fun *f = checkFun(token_text);
+    if (f)
+    {
+      return FunUse(f);
+    }
+    else
+      return Expression(SEMI);
+  }
   case INT_CONST:
   case FLOAT_CONST:
   case CHAR_CONST:
   case LONG_CONST:
-  case IDENT:
   case ARRAY:
     return Expression(SEMI);
     break;
@@ -949,7 +1048,7 @@ ASTTree *Expression(int end)
     }
     if (w == IDENT)
     {
-      if (!checkName(token_text))
+      if (!checkName(token_text, 0))
       {
         printf("Error in line %d\n", lines);
         printf("Error: don't exit %s\n", token_text);
@@ -995,7 +1094,8 @@ ASTTree *Expression(int end)
           errors++;
           break;
         }
-        op.pop();
+        else
+          op.pop();
         p->l = p1;
         p->r = p2;
         opn.push(p);
@@ -1328,7 +1428,7 @@ void returnToken(FILE *fp)
     ungetc(token_text[len - i - 1], fp);
   }
 }
-int can(char *name, int flag_)
+int can(char *name, int flag_, int type)
 //检测变量名字是否存在并加入，flag_=1表示是外部变量
 {
   if (error)
@@ -1353,12 +1453,13 @@ int can(char *name, int flag_)
   }
   else
   {
+    p->type[p->size] = type;
     strcpy(p->variable[p->size], name);
     p->size++;
     return 1;
   }
 }
-int checkName(char *name)
+int checkName(char *name, int type)
 {
   if (error)
     return NULL;
@@ -1370,16 +1471,32 @@ int checkName(char *name)
   {
     if (!strcmp(p->variable[i], name))
     {
-      flag = 1;
-      break;
+      if (!type)
+      {
+        flag = 1;
+        break;
+      }
+      else if (type == p->type[i])
+      {
+        flag = 1;
+        break;
+      }
     }
   }
   for (i = 0; i < Vroot->size; i++)
   {
-    if (!strcmp(p->variable[i], name))
+    if (!strcmp(Vroot->variable[i], name))
     {
-      flag = 1;
-      break;
+      if (!type)
+      {
+        flag = 1;
+        break;
+      }
+      else if (type == p->type[i])
+      {
+        flag = 1;
+        break;
+      }
     }
   }
   if (!flag)
@@ -1396,6 +1513,132 @@ ASTTree *init_AST()
   strcpy(root->data.data, "");
   root->type = root->data.type = 0;
   return root;
+}
+int checkType(int a, int b)
+{
+  if (a == INT_CONST && b == INT)
+    return 1;
+  if (a == FLOAT_CONST && b == FLOAT)
+    return 1;
+  if (a == CHAR_CONST && b == CHAR)
+    return 1;
+  if (a == LONG_CONST && b == LONG)
+    return 1;
+  return 0;
+}
+Fun *checkFun(char *name)
+{
+  Fun *f = funroot;
+  while (f)
+  {
+    if (!strcmp(f->name, name))
+    {
+      return f;
+    }
+    f = f->next;
+  }
+  return NULL;
+}
+
+ASTTree *FunUse(Fun *f)
+{
+  ASTTree *root = init_AST();
+  root->type = FUNUSE;
+  ASTTree *p = init_AST();
+  p->type = FUNCNAME;
+  strcpy(p->data.data, token_text);
+  root->l = p;
+  w = getToken(fp);
+  while (w == ANNO)
+    w = getToken(fp);
+  if (w != LP)
+  {
+    printf("Error in line %d\n", lines);
+    printf("ERROR: error in funuse,lose (\n");
+    exit(0);
+  }
+  w = getToken(fp);
+  while (w == ANNO)
+    w = getToken(fp);
+  if (w == RP && !f->Vardef->l)
+  {
+    w = getToken(fp);
+    while (w == ANNO)
+      w = getToken(fp);
+    if (w == SEMI)
+      return root;
+    else
+    {
+      printf("Error in line %d\n", lines);
+      printf("ERROR: error in funuse, miss ;3\n");
+      exit(0);
+    }
+  }
+  if ((w == IDENT || w == INT_CONST || w == FLOAT_CONST || w == LONG_CONST || w == CHAR_CONST) && f->Vardef->l)
+  {
+    ASTTree *q;
+    ASTTree *var = f->Vardef;
+    var = var->l;
+    while (var && ((w == IDENT && checkName(token_text, var->type)) || ((w == INT_CONST || w == FLOAT_CONST || w == LONG_CONST || w == CHAR_CONST) && checkType(w, var->type))))
+    {
+      q = init_AST();
+      q->type = FUNCFORMALPARA;
+      strcpy(q->data.data, token_text);
+      p->l = q;
+      p = q;
+      var = var->l;
+      w = getToken(fp);
+      while (w == ANNO)
+        w = getToken(fp);
+      if (var && w != COMMA)
+      {
+        printf("Error in line %d\n", lines);
+        printf("ERROR: error in funuse, miss ,1\n");
+        exit(0);
+      }
+      else if (var)
+      {
+        w = getToken(fp);
+        while (w == ANNO)
+          w = getToken(fp);
+      }
+    }
+    if (!var && w != IDENT)
+    {
+      if (w == RP)
+      {
+        w = getToken(fp);
+        while (w == ANNO)
+          w = getToken(fp);
+        if (w == SEMI)
+          return root;
+        else
+        {
+          printf("Error in line %d\n", lines);
+          printf("ERROR: error in funuse, miss ;2\n");
+          exit(0);
+        }
+      }
+      else
+      {
+        printf("Error in line %d\n", lines);
+        printf("ERROR: error in funuse,lose )\n");
+        exit(0);
+      }
+    }
+    else
+    {
+      printf("Error in line %d\n", lines);
+      printf("ERROR: error in funuse,var\n");
+      exit(0);
+    }
+  }
+  else
+  {
+    printf("Error in line %d\n", lines);
+    printf("ERROR: error in funuse\n");
+    exit(0);
+  }
 }
 
 void PreorderTranverse(ASTTree *root, int depth)
@@ -1559,6 +1802,21 @@ void showType(int type)
     break;
   case 46:
     printf("数组大小\n");
+    break;
+  case 47:
+    printf("头文件序列\n");
+    break;
+  case 48:
+    printf("头文件名字\n");
+    break;
+  case 49:
+    printf("函数调用\n");
+    break;
+  case 50:
+    printf("宏定义序列\n");
+    break;
+  case 51:
+    printf("宏定义名字\n");
     break;
   default:
     printf("no type\n");

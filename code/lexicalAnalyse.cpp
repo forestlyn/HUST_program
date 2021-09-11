@@ -195,7 +195,7 @@ int lexicalAnalyse()
     }
     else
     {
-      printf("\tError in line %d\n", lines);
+      printf("\tError in line %d token_text:%s type:%d\n", lines, token_text, type);
       break;
     }
   } while (type != -1);
