@@ -1494,7 +1494,7 @@ int checkName(char *name, int type)
         flag = 1;
         break;
       }
-      else if (type == p->type[i])
+      else if (type == Vroot->type[i])
       {
         flag = 1;
         break;

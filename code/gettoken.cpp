@@ -22,6 +22,14 @@ int isRight(char *p)
   }
   return 0;
 }
+int isRight_num(char c)
+{
+  if (c != ',' && c != '\n' && c != ' ' && c != ';' && c != ')' &&
+      c != '+' && c != '-' && c != '*' && c != '/' && c != '%' && c != '<' &&
+      c != '>' && c != '=' && c != '|' && c != '&' && c != '\t')
+    return 0;
+  return 1;
+}
 int isXnum(char c)
 {
   return (('a' <= c && c <= 'f') || ('A' <= c && c <= 'F') || isNum(c));
@@ -136,7 +144,7 @@ int getToken(FILE *fp)
             addWord(c, token_text);
             c = getc(fp);
           }
-          if (c == ' ' || c == ';' || c == ')' || c == '+' || c == '-' || c == '*' || c == '/' || c == '%')
+          if (isRight_num(c))
           {
             ungetc(c, fp);
             return INT_CONST;
@@ -157,14 +165,14 @@ int getToken(FILE *fp)
           addWord(c, token_text);
           c = getc(fp);
         }
-        if (c == ' ' || c == ';' || c == ')' || c == '+' || c == '-' || c == '*' || c == '/' || c == '%')
+        if (isRight_num(c))
         {
           ungetc(c, fp);
           return INT_CONST;
         }
         return ERROR_TOKEN;
       }
-      if (c == ' ' || c == ';' || c == ')' || c == '+' || c == '-' || c == '*' || c == '/' || c == '%')
+      if (isRight_num(c))
       {
         ungetc(c, fp);
         return INT_CONST;
@@ -178,10 +186,12 @@ int getToken(FILE *fp)
     }
     if (c != '.' && c != 'u' && c != 'U' && c != 'l' && c != 'L')
     {
-      if (c != '\n' && c != ' ' && c != ';' && c != ')' && c != '+' && c != '-' && c != '*' && c != '/' && c != '%' && c != '<' && c != '>' && c != '=')
-        return ERROR_TOKEN;
-      ungetc(c, fp);
-      return INT_CONST;
+      if (isRight_num(c))
+      {
+        ungetc(c, fp);
+        return INT_CONST;
+      }
+      return ERROR_TOKEN;
     }
     else if (c == '.')
     {
@@ -350,7 +360,7 @@ int getToken(FILE *fp)
     }
     break;
 
-    //³ý·¨£¬×¢??
+    //³ý·¨£¬×¢ÊÍ
   case '/':
     addWord(c, token_text);
     c = getc(fp);
