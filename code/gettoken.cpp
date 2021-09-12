@@ -380,6 +380,10 @@ int getToken(FILE *fp)
       {
         addWord(c, token_text);
         c = getc(fp);
+        if (c == EOF)
+        {
+          return ANNO;
+        }
         if (c == '*')
         {
           addWord(c, token_text);

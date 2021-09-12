@@ -526,19 +526,19 @@ ASTTree *LocalVarDefList()
   q->type = LOCALVARTYPE;
   q->data.type = w;
   if (w == INT)
-    strcpy(p->data.data, "int");
+    strcpy(q->data.data, "int");
   if (w == FLOAT)
-    strcpy(p->data.data, "float");
+    strcpy(q->data.data, "float");
   if (w == CHAR)
-    strcpy(p->data.data, "char");
+    strcpy(q->data.data, "char");
   if (w == LONG)
-    strcpy(p->data.data, "long");
+    strcpy(q->data.data, "long");
   if (w == SHORT)
-    strcpy(p->data.data, "short");
+    strcpy(q->data.data, "short");
   if (w == DOUBLE)
-    strcpy(p->data.data, "double");
+    strcpy(q->data.data, "double");
   if (w == ARRAY)
-    strcpy(p->data.data, "array");
+    strcpy(q->data.data, "array");
 
   p->l = q;
   p = q;
@@ -840,7 +840,6 @@ ASTTree *Statement()
     q1->r = q;
     q1 = Expression(RP);
     q->l = q1;
-    q1 = q;
 
     ASTTree *q2 = init_AST();
     q2->type = FORBODY;
