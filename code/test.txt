@@ -22,6 +22,8 @@ int fun(int a, float b)
 	{
 		a=a&&1;
 		continue;
+		break;
+		a=1;
 	}
 	while(a<10)a=a+2*1;
 }

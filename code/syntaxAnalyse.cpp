@@ -499,7 +499,7 @@ ASTTree *CompState()
 
   if (w == INT || w == DOUBLE || w == CHAR || w == LONG || w == SHORT || w == FLOAT)
     root->l = LocalVarDefList();
-  root->r = StateList();
+  root->r = StateList(RB);
   if (w == RB)
     return root;
   else
@@ -621,7 +621,7 @@ ASTTree *LocalVarDefList()
   return root;
 }
 
-ASTTree *StateList()
+ASTTree *StateList(int end)
 //´¦ÀíÓï¾äÐòÁÐ
 {
   if (error)
@@ -635,13 +635,15 @@ ASTTree *StateList()
     root = init_AST();
     root->type = STATELIST;
     root->l = root1;
-
-    w = getToken(fp);
-    while (w == ANNO)
-      w = getToken(fp);
-    if (w != RB)
+    if (end == RB)
     {
-      root->r = StateList();
+      w = getToken(fp);
+      while (w == ANNO)
+        w = getToken(fp);
+    }
+    if (w != end)
+    {
+      root->r = StateList(end);
     }
     return root;
   }
@@ -686,11 +688,11 @@ ASTTree *Statement()
       w = getToken(fp);
       while (w == ANNO)
         w = getToken(fp);
-      p->r = StateList();
+      p->r = StateList(RB);
     }
     else if (w == ARRAY || w == INT_CONST || w == FLOAT_CONST || w == CHAR_CONST || w == IDENT || w == IF || w == WHILE || w == FOR || w == DO)
     {
-      p->r = Statement();
+      p->r = StateList(SEMI);
     }
     else
     {
@@ -716,11 +718,11 @@ ASTTree *Statement()
         w = getToken(fp);
         while (w == ANNO)
           w = getToken(fp);
-        q->r = StateList();
+        q->r = StateList(RB);
       }
       else if (w == ARRAY || w == INT_CONST || w == FLOAT_CONST || w == CHAR_CONST || w == IDENT || w == WHILE || w == FOR || w == DO)
       {
-        q->r = Statement();
+        q->r = StateList(SEMI);
       }
       else if (w == IF)
       {
@@ -778,11 +780,11 @@ ASTTree *Statement()
       w = getToken(fp);
       while (w == ANNO)
         w = getToken(fp);
-      q->r = StateList();
+      q->r = StateList(RB);
     }
     else if (w == INT_CONST || w == FLOAT_CONST || w == CHAR_CONST || w == IDENT || w == ARRAY || w == WHILE || w == IF || w == FOR || w == DO)
     {
-      q->r = Statement();
+      q->r = StateList(SEMI);
     }
     else
     {
@@ -851,10 +853,10 @@ ASTTree *Statement()
       w = getToken(fp);
       while (w == ANNO)
         w = getToken(fp);
-      q2->r = StateList();
+      q2->r = StateList(RB);
     }
     else if (w == ARRAY || w == INT_CONST || w == FLOAT_CONST || w == CHAR_CONST || w == IDENT || w == IF || w == WHILE || w == FOR || w == DO)
-      q2->r = Statement();
+      q2->r = StateList(SEMI);
     else
     {
       printf("Error in line %d\n", lines);
@@ -909,7 +911,7 @@ ASTTree *Statement()
     w = getToken(fp);
     while (w == ANNO)
       w = getToken(fp);
-    p->l = StateList();
+    p->l = StateList(RB);
 
     w = getToken(fp);
     while (w == ANNO)

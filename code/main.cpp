@@ -50,7 +50,7 @@ int main()
     printf("\t3.format\n");
     printf("\t0.exit\n");
     printf("\tchoose in [0-3]:");
-    scanf("%d", &op);
+    op = 3;
     init();
     switch (op)
     {
@@ -67,10 +67,11 @@ int main()
     case 3:
       fp = fopen(finename, "r");
       format();
-      system("pause");
+      //system("pause");
     default:
       break;
     }
+    op = 0;
   }
   return 0;
 }

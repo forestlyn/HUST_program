@@ -110,7 +110,7 @@ ASTTree *CompState(); //分析函数主体
 
 ASTTree *LocalVarDefList(); //分析局部变量
 
-ASTTree *StateList(); //处理语句序列
+ASTTree *StateList(int end); //处理语句序列
 
 ASTTree *Statement(); //处理语句
 
