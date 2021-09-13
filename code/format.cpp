@@ -2,7 +2,6 @@
 
 extern FILE *fp;
 int tab = 0;
-int flag = 0, semi = 0, inBlock = 0;
 int root_type;
 FILE *fp1;
 void print(ASTTree *root)
@@ -131,6 +130,7 @@ void print(ASTTree *root)
         root_type == FORPART || root_type == IFPART || root_type == WHILEPART ||
         root_type == DOWHILECONDITION)
     {
+      ;
     }
     else
       root_type = EXPRESSION;
@@ -148,7 +148,6 @@ void print(ASTTree *root)
       break;
     }
     root_type = 0;
-    flag = 0;
     break;
   }
   case IFPART:
@@ -171,18 +170,23 @@ void print(ASTTree *root)
     print_tab();
     fprintf(fp1, "else ");
     if (root->r)
-      fprintf(fp1, "\n{\n");
+    {
+      fprintf(fp1, "\n");
+      print_tab();
+      tab += 2;
+      fprintf(fp1, "{\n");
+    }
     print(root->l);
-    if (root->l->type != IFSTATEMENT && root->l->type != IFELSESTATEMENT)
+    if (root->l && root->l->type != IFSTATEMENT && root->l->type != IFELSESTATEMENT)
     {
       fprintf(fp1, "\n}\n");
     }
-    else
+    print(root->r);
+    if (!root->l)
     {
-      int t = tab;
-      tab = 0;
-      print(root->r);
-      tab = t;
+      tab -= 2;
+      print_tab();
+      fprintf(fp1, "}\n");
     }
     break;
   case IFSTATEMENT:
@@ -231,18 +235,21 @@ void print(ASTTree *root)
   case FORPART1:
     root_type = root->type;
     print(root->l);
+    if (!root->l)
+      fprintf(fp1, ";");
     print(root->r);
     break;
   case FORPART2:
     root_type = root->type;
     print(root->l);
+    if (!root->l)
+      fprintf(fp1, ";");
     print(root->r);
     break;
   case FORPART3:
     root_type = root->type;
     print(root->l);
     fprintf(fp1, ")\n");
-    print(root->r);
     break;
   case FORBODY:
     root_type = root->type;
@@ -309,7 +316,7 @@ void print(ASTTree *root)
     print(root->r);
     break;
   case ARRAYNAME:
-    fprintf(fp1, "%s", root->data.data);
+    fprintf(fp1, "%s;\n", root->data.data);
     print(root->l);
     print(root->r);
     break;
@@ -344,15 +351,20 @@ void midpre(ASTTree *root)
 {
   if (!root)
     return;
+  if (root->type == OPERATOR)
+    fprintf(fp1, "(");
   midpre(root->l);
   if (strcmp(root->data.data, ""))
   {
-    if (flag)
+    if (root->type == OPERATOR)
       fprintf(fp1, " ");
     fprintf(fp1, "%s", root->data.data);
-    flag = 1;
+    if (root->type == OPERATOR)
+      fprintf(fp1, " ");
   }
   midpre(root->r);
+  if (root->type == OPERATOR)
+    fprintf(fp1, ")");
 }
 void print_tab()
 {

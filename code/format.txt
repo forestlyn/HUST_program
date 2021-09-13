@@ -4,34 +4,33 @@ int i, j;
 int fun(int a, float b)
 {
   int m;
-  if (a > b)
+  if ((a > b))
   {
-    m = a;
+    (m = a);
   }
-  if (a > 1 && 1 || 1)
+  if ((((a > 1) && 1) || 1))
   {
-    m = 1;
+    (m = 1);
   }
   else if (1)
   {
-    m = b;
+    (m = b);
   }
   return m;
   do
   {
-    a = a + 1;
-    a = 1 + 2 < 3;
-  } while (a < 10);
+    (a = (a + 1));
+    (a = (1 + (2 < 3)));
+  } while ((a < 10));
   for (1;2;3)
   {
-    a = a && 1;
+    (a = (a && 1));
     continue;
     break;
-    a = 1;
   }
-  while (a < 10)
+  while ((a < 10))
   {
-    a = a + 2 * 1;
+    (a = (a + (2 * 1)));
   }
 }
 float x, y;

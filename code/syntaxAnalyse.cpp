@@ -1801,7 +1801,7 @@ void showType(int type)
     printf("数组类型\n");
     break;
   case 45:
-    printf("函数名\n");
+    printf("数组名\n");
     break;
   case 46:
     printf("数组大小\n");
