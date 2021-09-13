@@ -47,12 +47,12 @@ void print(ASTTree *root)
     break;
   case FUNCNAME:
     fprintf(fp1, "%s(", root->data.data);
-    if (!root->l)
+    if (root_type != FUNCCLAIM && !root->l)
       fprintf(fp1, ")\n");
-    if (!root->l && !root->r)
-      fprintf(fp1, ");\n");
     print(root->l);
     print(root->r);
+    if (root_type == FUNCCLAIM && !root->l && !root->r)
+      fprintf(fp1, ");\n");
     break;
   case FUNCFORMALPARALIST:
     print(root->l);
@@ -61,8 +61,11 @@ void print(ASTTree *root)
       fprintf(fp1, ", ");
       print(root->r);
     }
+    else if (root_type == FUNCCLAIM)
+      fprintf(fp1, ");\n");
     else
       fprintf(fp1, ")\n");
+    root_type = 0;
     break;
   case FUNCFORMALPARADEF:
     print(root->l);
