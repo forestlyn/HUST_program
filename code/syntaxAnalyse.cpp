@@ -121,6 +121,8 @@ ASTTree *ExtDef()
   if (w == LP)
   {
     isExt = 0;
+    isVoid = 0;
+    hasReturn = 0;
     p = FuncDef();
     isExt = 1;
   }
@@ -525,6 +527,7 @@ ASTTree *LocalVarDefList()
   ASTTree *q = init_AST();
   q->type = LOCALVARTYPE;
   q->data.type = w;
+  type = w;
   if (w == INT)
     strcpy(q->data.data, "int");
   if (w == FLOAT)
@@ -745,7 +748,7 @@ ASTTree *Statement()
   }
   case WHILE:
   {
-    isInRecycle = 1;
+    isInRecycle ++;
     w = getToken(fp);
     while (w == ANNO)
       w = getToken(fp);
@@ -795,13 +798,13 @@ ASTTree *Statement()
     root->type = WHILESTATEMENT;
     root->l = p;
     root->r = q;
-    isInRecycle = 0;
+    isInRecycle --;
     return root;
     break;
   }
   case FOR:
   {
-    isInRecycle = 1;
+    isInRecycle ++;
     w = getToken(fp);
     while (w == ANNO)
       w = getToken(fp);
@@ -866,7 +869,7 @@ ASTTree *Statement()
     root->type = FORSTATEMENT;
     root->l = p;
     root->r = q2;
-    isInRecycle = 0;
+    isInRecycle --;
     return root;
     break;
   }
@@ -893,7 +896,7 @@ ASTTree *Statement()
   }
   case DO:
   {
-    isInRecycle = 1;
+    isInRecycle ++;
     w = getToken(fp);
     while (w == ANNO)
       w = getToken(fp);
@@ -955,6 +958,7 @@ ASTTree *Statement()
     root->l = p;
     root->r = q;
     root->type = DOWHILESTATEMENT;
+    isInRecycle--;
     return root;
     break;
   }
@@ -1015,6 +1019,7 @@ ASTTree *Statement()
   case FLOAT_CONST:
   case CHAR_CONST:
   case LONG_CONST:
+  case STRING_CONST:
   case ARRAY:
     return Expression(SEMI);
     break;
@@ -1484,6 +1489,8 @@ int checkName(char *name, int type)
         flag = 1;
         break;
       }
+      //else
+      //printf("\ncheck!:%s %d %d\n", p->variable[i], p->type[i], type);
     }
   }
   for (i = 0; i < Vroot->size; i++)
@@ -1582,6 +1589,7 @@ ASTTree *FunUse(Fun *f)
     ASTTree *q;
     ASTTree *var = f->Vardef;
     var = var->l;
+    //printf("check:%d", checkName(token_text, var->type));
     while (var && ((w == IDENT && checkName(token_text, var->type)) || ((w == INT_CONST || w == FLOAT_CONST || w == LONG_CONST || w == CHAR_CONST) && checkType(w, var->type))))
     {
       q = init_AST();

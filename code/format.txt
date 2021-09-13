@@ -1,41 +1,164 @@
-#include<stdio.h>
-#define
-int i, j;
-int fun(int a, float b)
+#include <stdio.h>
+#include <iostream>
+#define PI 3.14
+int a, b;
+char w[20];
+void checkState()
+);
+char fun(char c)
 {
-  int m;
-  if ((a > b))
+  double d;
+  int i;
+  if (1)
   {
-    (m = a);
+    1;
   }
-  if ((((a > 1) && 1) || 1))
+  if (1)
   {
-    (m = 1);
+    a;
+    b;
   }
-  else if (1)
+  if (1)
   {
-    (m = b);
+    1;
   }
-  return m;
+  else 
+  {
+    a;
+    b;
+  }
+  if (1)
+  {
+    a;
+    b;
+  }
+  else 
+  {
+    a;
+    b;
+  }
+  if (1)
+  {
+    1;
+  }
+  else if (2)
+  {
+    a;
+    b;
+  }
+  if (1)
+  {
+    a;
+    b;
+  }
+  else if (2)
+  {
+    a;
+  }
+  if (1)
+  {
+    a;
+    b;
+    if (1)
+    {
+      a;
+      b;
+      if (1)
+      {
+        a;
+        b;
+      }
+      else if (2)
+      {
+        a;
+      }
+    }
+    else if (2)
+    {
+      a;
+    }
+  }
+  else if (2)
+  {
+    a;
+  }
+  while (1)
+  {
+    a;
+    b;
+  }
+  while (1)
+  {
+    a;
+  }
+  while (1)
+  {
+    a;
+    b;
+    if (c)
+    {
+      break;
+      continue;
+    }
+  }
   do
   {
-    (a = (a + 1));
-    (a = (1 + (2 < 3)));
-  } while ((a < 10));
-  for (1;2;3)
+    a;
+    b;
+  } while (1);
+  do
   {
-    (a = (a && 1));
-    continue;
-    break;
-  }
-  while ((a < 10))
+    a;
+  } while (1);
+  do
   {
-    (a = (a + (2 * 1)));
+    a;
+    b;
+    if (c)
+    {
+      break;
+      continue;
+    }
+  } while (1);
+  for ((i = 0);(i < 1);i)
+  {
+    a;
+    b;
   }
+  for (;;)
+  {
+    a;
+  }
+  return c;
 }
-float x, y;
-void main()
+void checkState()
 {
-  fun(1, x);
   return;
 }
+int main()
+{
+  char c;
+  fun(c);
+  return 0;
+}
+void checkNum()
+{
+  int _a1, b_2;
+  017;
+  0xfff;
+  0Xfff;
+  0;
+  6918;
+  6918;
+  6918;
+  'w';
+  '\t';
+  '\\';
+  '\017';
+  '\xff';
+  "";
+  """;
+  "hello world";
+  return;
+}
+float c, d;
