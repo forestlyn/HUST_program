@@ -73,5 +73,8 @@ static char KeyType[KEYTYPE_LEN][5] = {
     "U", "L", "LL", "UL", "LU", "LLU", "ULL"};
 int isXnum(char c);
 int isNum(char c);
+int isRight(char *p);
+int isRight_num(char c);
+int addWord(char c, char *word);
 int isLetter(char c);
 int getToken(FILE *fp);
