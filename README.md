@@ -1,2 +1,0 @@
-# HUST_program
-
