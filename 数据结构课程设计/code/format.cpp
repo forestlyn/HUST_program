@@ -395,6 +395,7 @@ void init()
   error = 0;
   isExt = 1;
   Vroot = NULL;
+  funroot = NULL;
   isInRecycle = 0;
   isVoid = 0;
   hasReturn = 0;
